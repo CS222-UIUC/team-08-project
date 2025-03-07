@@ -20,7 +20,7 @@ Explore new songs and artists to find a song that you truly enjoy. Introducing T
 
 - React Native
 - Flask
-- Spotify API
+- Spotify API`
 - OAuth
 - PostgreSQL
 - Azure/AWS
