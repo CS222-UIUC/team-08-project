@@ -17,14 +17,12 @@ def generate_api_key():
         return jsonify({"error": str(e)}), 500
 
 
-#Endpoint to generate new API keys
 @routes.post('/login')
 def register():
     # Contains logic for logging in a user
     pass
     
 
-#Endpoint for adding points
 @routes.post('/findSong')
 @require_api_key 
 def getSong():
@@ -32,7 +30,6 @@ def getSong():
     pass
    
 
-#Endpoint for returning balance
 @routes.get('/updateProfile')
 @require_api_key
 def get_balance():
