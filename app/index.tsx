@@ -9,13 +9,13 @@ export default function Index() {
     try {
       //this fetch returns "Network Request Failed" because mac only supports https and our flask server is http
       //fixing this should make login work
-      const response = await fetch('http://127.0.0.1:4000/login', {
-        method: 'POST',
+      const response = await fetch('https://127.0.0.1:4000/login', {
+        method: 'GET',
         headers: { 'Content-Type': 'application/json' },
       });
-      console.log("JSON.stringify(response)")
+      console.log(JSON.stringify(response))
       const { auth_url, verifier }: { auth_url: string; verifier: string } = await response.json();   
-      const result = await WebBrowser.openAuthSessionAsync(auth_url, 'http://127.0.0.1:4000/callback');
+      const result = await WebBrowser.openAuthSessionAsync(auth_url, 'https://127.0.0.1:4000/callback');
       if (result.type == 'success'){
         const url = result.url;
         const code = new URL(url).searchParams.get('code');
