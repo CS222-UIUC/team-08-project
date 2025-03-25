@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
+import { useRouter } from "expo-router";
 
 export default function Login() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = () => {
     console.log("Email:", email);
     console.log("Password:", password);
-    alert("Login button clicked!");
+    // Perform login logic here
+    router.push("/home");
   };
 
   return (
@@ -30,7 +33,13 @@ export default function Login() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} color="#32CD32" /> {/* Green button */}
+      <View style={styles.buttonContainer}>
+        <Button 
+          title="Login" 
+          onPress={handleLogin} 
+          color="#32CD32"
+        />
+      </View>
     </View>
   );
 }
@@ -60,4 +69,7 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     backgroundColor: "#1E1E1E",
   },
+  buttonContainer: {
+    width: "50%",
+  }
 });
