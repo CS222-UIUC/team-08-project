@@ -15,7 +15,7 @@ routes = Blueprint('routes', __name__)
 client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"  
 
 app = Flask(__name__)
-CORS(app, origins=["http://localhost:8081"])
+CORS(app, origins=["exp://10.194.148.244:8081", "http://localhost:8081"])
 # talisman = Talisman(app)
 
 #Endpoint to generate new API keys
@@ -65,7 +65,7 @@ def login():
             "https://accounts.spotify.com/authorize?"
             f"client_id={client_id}&"
             "response_type=code&"
-            "redirect_uri=http://127.0.0.1:4000/callback"  # Adjust redirect URI
+            "redirect_uri= https://0e89-130-126-255-122.ngrok-free.app/callback&"  # Adjust redirect URI
             "scope=user-read-private user-read-email&"      # Add scopes as needed
             f"code_challenge={challenge}&"
             "code_challenge_method=S256"
@@ -102,4 +102,4 @@ def callback():
 
 
 if __name__ == '__main__':
-    app.run(port=4000, debug=True, ssl_context=('./127.0.0.1.pem', './127.0.0.1-key.pem')) # Replace ssl_context with real certificate in production
+    app.run(host='0.0.0.0', port=4000, debug=True) # Replace ssl_context with real certificate in production
