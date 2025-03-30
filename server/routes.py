@@ -12,6 +12,7 @@ from auth import generate_code_verifier, generate_code_challenge, get_access_tok
 
 load_dotenv()  
 
+
 routes = Blueprint('routes', __name__)
 client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"  
 verifier = generate_code_verifier(64) 
@@ -51,7 +52,6 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
 @app.route('/callback')
 def callback():
     code = request.args.get('code')
@@ -79,3 +79,4 @@ def getToken():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000, debug=True) # Replace ssl_context with real certificate in production
+

@@ -33,6 +33,7 @@ export default function Index() {
       const result = await WebBrowser.openAuthSessionAsync(auth_url, 'https://69f7-130-126-255-122.ngrok-free.app/callback');
       const token = fetch('https://69f7-130-126-255-122.ngrok-free.app/getToken')
       console.log("T: ", token)
+      router.push("/playlist")
     } catch (error) {
       console.log('Error at line 10:', error);
     }
