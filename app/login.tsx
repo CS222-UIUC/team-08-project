@@ -34,6 +34,7 @@ export default function Login() {
         onChangeText={setPassword}
         secureTextEntry
       />
+
       <View style={styles.buttonContainer}>
         <Button 
           title="Login" 
