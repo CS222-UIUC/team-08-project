@@ -22,14 +22,14 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
-      ...tseslint.configs.recommended.rules, 
-      ...pluginReact.configs.flat.recommended.rules, 
-      "react/react-in-jsx-scope": "off", 
-      "prettier/prettier": "warn", 
+      ...tseslint.configs.recommended.rules,
+      ...pluginReact.configs.flat.recommended.rules,
+      "react/react-in-jsx-scope": "off",
+      "prettier/prettier": "warn",
     },
     settings: {
       react: {
-        version: "detect", 
+        version: "detect",
       },
     },
   },

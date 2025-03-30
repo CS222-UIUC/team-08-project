@@ -2,3 +2,6 @@ npm install expo
 npm i spotify-web-api-node
 pip3 install flask
 Flask==3.1.0
+npm install --save-dev eslint
+pip install flake8
+pip install black
