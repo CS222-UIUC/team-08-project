@@ -56,11 +56,10 @@ async def get_user_info(token: str) -> str:
             if response.status != 200:
                 raise Exception(f"User info request failed (status {response.status}): {data.get('error', 'Unknown error')}")
             
-            display_name = data.get("display_name")
-            if not display_name:
+            if not data:
                 raise Exception("Display name not found in the response.")
             
-            return display_name
+            return data
 
 
 

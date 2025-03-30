@@ -59,11 +59,14 @@ def callback():
     access_token = token_info.get('access_token')
 
     # Retrieve the user's display name (username) from Spotify using the access token
-    username = asyncio.run(get_user_info(access_token))
-    print("USERNAME: " + username)
+    data = asyncio.run(get_user_info(access_token))
+    display_name = data.get("display_name")
+    id = data.get("id")
+    print("Display Name: " + display_name)
+    print("ID: " + id)
     
     # Write user info to the database (or get the existing user's genre)
-    genre = add_or_get_user(username)
+    genre = add_or_get_user(id, display_name)
 
     return access_token
     # access token is granted after user gives us permissions. We can use a users access token to retrieve information aout their spotify profile through api
