@@ -1,4 +1,4 @@
-from flask import Flask, Blueprint, request, jsonify, render_template
+from flask import Flask, Blueprint, request, jsonify, render_template, session, redirect
 import secrets
 import psycopg2
 from flask_cors import CORS
@@ -6,50 +6,21 @@ from flask_cors import CORS
 from db import get_db_connection  # Import the database connection function
 from dotenv import load_dotenv
 import os
-
-from auth import generate_code_verifier, generate_code_challenge, redirect_to_auth_code_flow, get_access_token, fetch_profile
+import asyncio
+import json
+from auth import generate_code_verifier, generate_code_challenge, get_access_token
 
 load_dotenv()  
 
 routes = Blueprint('routes', __name__)
 client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"  
-
+verifier = generate_code_verifier(64) 
+challenge = ""
+access_token = ""
 app = Flask(__name__)
 CORS(app, origins=["exp://10.194.148.244:8081", "http://localhost:8081"])
 # talisman = Talisman(app)
 
-#Endpoint to generate new API keys
-@routes.post('/register')
-def generate_api_key():
-    data = request.get_json()
-    username = data.get('username')
-
-    if not username:
-        return jsonify({"error": "Username is required"}), 400
-
-    api_key = secrets.token_hex(32)
-
-    try:
-        # Connect to the database
-        conn = get_db_connection()
-        cursor = conn.cursor()
-
-        # Insert the user into the database
-        cursor.execute(
-            "INSERT INTO users (username, api_key) VALUES (%s, %s)",
-            (username, api_key)
-        )
-        conn.commit()
-
-        # Close the connection
-        cursor.close()
-        conn.close()
-
-        return jsonify({"message": "User registered successfully", "api_key": api_key}), 201
-    except psycopg2.IntegrityError:
-        return jsonify({"error": "Username already exists"}), 400
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
 
 #use app.route
 @app.route('/login', methods=['GET', 'POST'])
@@ -57,15 +28,15 @@ def login():
     # Contains logic for logging in a user 
     try:
         # Generate PKCE code verifier and challenge
-        verifier = generate_code_verifier(50)
-        challenge = generate_code_challenge(verifier)
-
+        # verifier = generate_code_verifier(64)
+        # session['pkce_verifier'] = verifier
+        challenge = asyncio.run(generate_code_challenge(verifier))
         # Build the Spotify authorization URL
         auth_url = (
             "https://accounts.spotify.com/authorize?"
             f"client_id={client_id}&"
             "response_type=code&"
-            "redirect_uri= https://0e89-130-126-255-122.ngrok-free.app/callback&"  # Adjust redirect URI
+            "redirect_uri=https://36be-130-126-255-168.ngrok-free.app/callback&"  # Adjust redirect URI
             "scope=user-read-private user-read-email&"      # Add scopes as needed
             f"code_challenge={challenge}&"
             "code_challenge_method=S256"
@@ -80,25 +51,24 @@ def login():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@routes.post('/getToken')
-def getToken():
-    data = request.get_json()
-    code = data.get('code')
-    verifier = data.get('verifier')
 
-    try:
-        token_info = get_access_token(client_id, code, verifier)
-        access_token = token_info['access_token']
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-
-@routes.get('/callback')
+@app.route('/callback')
 def callback():
     code = request.args.get('code')
-    verifier = request.args.get('verifier')  # If passed in URL
-    token_info = get_access_token(client_id, code, verifier)
-    return jsonify({"access_token": token_info['access_token']}), 200
+    token_info = asyncio.run(get_access_token(client_id, code, verifier))
+    access_token = token_info.get('access_token')
+
+    return access_token
+    # access token is granted after user gives us permissions. We can use a users access token to retrieve information aout their spotify profile through api
+
+@app.route('/retur')
+def retur():
+    return "Hello"
+
+@app.route('/getToken')
+def getToken():
+    return access_token
+
 
 
 if __name__ == '__main__':
