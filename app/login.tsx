@@ -10,8 +10,9 @@ export default function Login() {
   const handleLogin = () => {
     console.log("Email:", email);
     console.log("Password:", password);
-    // Perform login logic here
-    router.push("/home");
+    // Here you would typically authenticate with Spotify
+    // For now, we'll just navigate to the playlists page
+    router.push("/playlist");
   };
 
   return (
@@ -59,7 +60,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   input: {
-    width: "50%",
+    width: "80%",
     height: 50,
     borderColor: "#32CD32",
     borderWidth: 1,
@@ -70,6 +71,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#1E1E1E",
   },
   buttonContainer: {
-    width: "50%",
+    width: "80%",
   }
 });
