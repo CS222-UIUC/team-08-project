@@ -30,7 +30,8 @@ export default function Login() {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Login" onPress={handleLogin} color="#32CD32" /> {/* Green button */}
+      <Button title="Login" onPress={handleLogin} color="#32CD32" />{" "}
+      {/* Green button */}
     </View>
   );
 }
