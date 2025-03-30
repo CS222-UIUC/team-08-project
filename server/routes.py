@@ -3,12 +3,12 @@ import secrets
 import psycopg2
 from flask_cors import CORS
 # from flask_talisman import Talisman
-from db import get_db_connection  # Import the database connection function
+from db import get_db_connection, add_or_get_user  # Import the database connection function
 from dotenv import load_dotenv
 import os
 import asyncio
 import json
-from auth import generate_code_verifier, generate_code_challenge, get_access_token
+from auth import generate_code_verifier, generate_code_challenge, get_access_token, get_user_info
 
 load_dotenv()  
 
@@ -36,7 +36,7 @@ def login():
             "https://accounts.spotify.com/authorize?"
             f"client_id={client_id}&"
             "response_type=code&"
-            "redirect_uri=https://36be-130-126-255-168.ngrok-free.app/callback&"  # Adjust redirect URI
+            "redirect_uri=https://69f7-130-126-255-122.ngrok-free.app/callback&"  # Adjust redirect URI
             "scope=user-read-private user-read-email&"      # Add scopes as needed
             f"code_challenge={challenge}&"
             "code_challenge_method=S256"
@@ -58,12 +58,15 @@ def callback():
     token_info = asyncio.run(get_access_token(client_id, code, verifier))
     access_token = token_info.get('access_token')
 
+    # Retrieve the user's display name (username) from Spotify using the access token
+    username = asyncio.run(get_user_info(access_token))
+    print("USERNAME: " + username)
+    
+    # Write user info to the database (or get the existing user's genre)
+    genre = add_or_get_user(username)
+
     return access_token
     # access token is granted after user gives us permissions. We can use a users access token to retrieve information aout their spotify profile through api
-
-@app.route('/retur')
-def retur():
-    return "Hello"
 
 @app.route('/getToken')
 def getToken():

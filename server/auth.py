@@ -2,6 +2,7 @@ import aiohttp
 import hashlib
 import base64
 import os
+import json
 
 client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"  
 
@@ -24,7 +25,7 @@ async def get_access_token(client_id, code, verifier):
             "client_id": client_id,
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": "https://36be-130-126-255-168.ngrok-free.app/callback",
+            "redirect_uri": "https://69f7-130-126-255-122.ngrok-free.app/callback",
             "code_verifier": verifier,
         }
         
@@ -37,6 +38,29 @@ async def get_access_token(client_id, code, verifier):
                 error_data = await response.json()
                 raise Exception(f"Token request failed: {error_data.get('error_description', 'Unknown error')}")
             return await response.json()
+        
+
+async def get_user_info(token: str) -> str:
+    async with aiohttp.ClientSession() as session:
+        headers = {"Authorization": f"Bearer {token}"}
+        async with session.get("https://api.spotify.com/v1/me", headers=headers) as response:
+            text = await response.text()
+            print("Raw response text:", text)  # Log the raw response
+            if not text:
+                raise Exception("Empty response received from Spotify API.")
+            try:
+                data = json.loads(text)
+            except json.JSONDecodeError as e:
+                raise Exception(f"Error decoding JSON: {e}; response text: {text}")
+            
+            if response.status != 200:
+                raise Exception(f"User info request failed (status {response.status}): {data.get('error', 'Unknown error')}")
+            
+            display_name = data.get("display_name")
+            if not display_name:
+                raise Exception("Display name not found in the response.")
+            
+            return display_name
 
 
 

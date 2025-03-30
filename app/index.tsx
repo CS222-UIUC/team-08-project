@@ -19,7 +19,7 @@ export default function Index() {
     try {
       //this fetch returns "Network Request Failed" because mac only supports https and our flask server is http
       //fixing this should make login work
-      const response = await fetch('https://36be-130-126-255-168.ngrok-free.app/login', {
+      const response = await fetch('https://69f7-130-126-255-122.ngrok-free.app/login', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json',
           'Ngrok-Skip-Browser-Warning': 'true'
@@ -30,8 +30,8 @@ export default function Index() {
       const verifier = data.verifier;      
       console.log("Auth URL:", auth_url);
       console.log("Verifier Expo: ", verifier);
-      const result = await WebBrowser.openAuthSessionAsync(auth_url, 'https://36be-130-126-255-168.ngrok-free.app/callback');
-      const token = fetch('https://36be-130-126-255-168.ngrok-free.app/getToken')
+      const result = await WebBrowser.openAuthSessionAsync(auth_url, 'https://69f7-130-126-255-122.ngrok-free.app/callback');
+      const token = fetch('https://69f7-130-126-255-122.ngrok-free.app/getToken')
       console.log("T: ", token)
     } catch (error) {
       console.log('Error at line 10:', error);
