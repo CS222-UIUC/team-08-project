@@ -12,14 +12,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18]  # Set Node.js version
-        python-version: [3.10]  # Set Python version
+        node-version: [20.15.0]
+        python-version: [3.12.4]
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
