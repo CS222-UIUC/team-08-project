@@ -9,7 +9,7 @@ export default function Index() {
       <Text style={styles.text}>TuneAi</Text>
       <Button
         title="Login"
-        onPress={() => router.push("/login")}
+        onPress={() => router.push("/playlist")}
         color="#32CD32" // Green highlight
       />
     </View>
