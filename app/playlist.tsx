@@ -14,14 +14,14 @@ const mockPlaylists = [
 export default function Playlists() {
   const router = useRouter();
 
-  const handlePlaylistSelect = (playlist) => {
+  const handlePlaylistSelect = (playlist: { id: any; name: any; }) => {
     router.push({
       pathname: "/home",
       params: { playlistId: playlist.id, playlistName: playlist.name }
     });
   };
 
-  const renderPlaylistItem = ({ item }) => (
+  const renderPlaylistItem = (item: { id: any; name: any;}) => (
     <TouchableOpacity 
       style={styles.playlistItem} 
       onPress={() => handlePlaylistSelect(item)}

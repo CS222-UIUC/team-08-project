@@ -25,7 +25,7 @@ async def get_access_token(client_id, code, verifier):
             "client_id": client_id,
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": "https://69f7-130-126-255-122.ngrok-free.app/callback",
+            "redirect_uri": "https://a17b-130-126-255-168.ngrok-free.app/callback",
             "code_verifier": verifier,
         }
         
@@ -41,7 +41,7 @@ async def get_access_token(client_id, code, verifier):
         
 
 
-async def get_user_info(token: str) -> str:
+# async def get_user_info(token: str) -> str:
 
 
 # async def redirect_to_auth_code_flow(client_id):
