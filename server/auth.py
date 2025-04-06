@@ -4,7 +4,7 @@ import base64
 import os
 import json
 
-client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"
+client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"  
 
 def generate_code_verifier(length: int = 32) -> tuple[str, str]:
     """Generate a random code verifier."""
@@ -25,7 +25,7 @@ async def get_access_token(client_id, code, verifier):
             "client_id": client_id,
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": "https://a17b-130-126-255-168.ngrok-free.app/callback",
+            "redirect_uri": "https://fdb1-130-126-255-122.ngrok-free.app/callback",
             "code_verifier": verifier,
         }
         
@@ -40,8 +40,27 @@ async def get_access_token(client_id, code, verifier):
             return await response.json()
         
 
+async def get_user_info(token: str) -> str:
+    async with aiohttp.ClientSession() as session:
+        headers = {"Authorization": f"Bearer {token}"}
+        async with session.get("https://api.spotify.com/v1/me", headers=headers) as response:
+            text = await response.text()
+            print("Raw response text:", text)  # Log the raw response
+            if not text:
+                raise Exception("Empty response received from Spotify API.")
+            try:
+                data = json.loads(text)
+            except json.JSONDecodeError as e:
+                raise Exception(f"Error decoding JSON: {e}; response text: {text}")
+            
+            if response.status != 200:
+                raise Exception(f"User info request failed (status {response.status}): {data.get('error', 'Unknown error')}")
+            
+            if not data:
+                raise Exception("Display name not found in the response.")
+            
+            return data
 
-# async def get_user_info(token: str) -> str:
 
 
 # async def redirect_to_auth_code_flow(client_id):
@@ -68,4 +87,3 @@ async def get_access_token(client_id, code, verifier):
 
 #Flow
 #RedirectToAuth -> GetToken -> fetchProfile
-
