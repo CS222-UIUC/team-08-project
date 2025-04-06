@@ -5,8 +5,10 @@
     "paths": {
       "@/*": [
         "./*"
-      ]
-    }
+      ],
+      "@env": ["./env.d.ts"]
+    },
+    "typeRoots": ["./types"]
   },
   "include": [
     "**/*.ts",

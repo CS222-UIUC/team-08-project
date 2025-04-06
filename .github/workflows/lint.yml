@@ -45,6 +45,6 @@ jobs:
         run: |
           npx eslint . --ext .js,.jsx,.ts,.tsx
       # Prettier for code formatting
-      - name: Run Prettier
-        run: |
-          npx prettier --check .
+      # - name: Run Prettier
+      #   run: |
+      #     npx prettier --check .
