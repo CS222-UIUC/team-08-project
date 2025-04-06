@@ -3,6 +3,8 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react
 import { useRouter } from "expo-router";
 
 // Mock data for playlists
+const ngrok_url = "https://29fb-130-126-255-168.ngrok-free.app"
+
 const mockPlaylists = [
   { id: '1', name: 'Liked Songs', imageUrl: 'https://misc.scdn.co/liked-songs/liked-songs-300.png', tracks: 124 },
   { id: '2', name: 'Chill Vibes', imageUrl: 'https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228', tracks: 45 },

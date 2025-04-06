@@ -4,6 +4,7 @@ import base64
 import os
 import json
 
+ngrok_url = "https://29fb-130-126-255-168.ngrok-free.app"
 client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"  
 
 def generate_code_verifier(length: int = 32) -> tuple[str, str]:
@@ -25,7 +26,7 @@ async def get_access_token(client_id, code, verifier):
             "client_id": client_id,
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": "https://fdb1-130-126-255-122.ngrok-free.app/callback",
+            "redirect_uri": ngrok_url + "/callback",
             "code_verifier": verifier,
         }
         
@@ -62,28 +63,6 @@ async def get_user_info(token: str) -> str:
             return data
 
 
-
-# async def redirect_to_auth_code_flow(client_id):
-#     """Redirect to Spotify authorization page."""
-#     verifier = generate_code_verifier(50)
-#     challenge = await generate_code_challenge(verifier)
-    
-#     # Store the verifier securely (e.g., in a session or secure storage)
-#     print(f"Storing verifier: {verifier}")
-    
-    # params = {
-    #     "client_id": client_id,
-    #     "response_type": "code",
-    #     "redirect_uri": "https://36be-130-126-255-168.ngrok-free.app/callback",
-    #     "scope": "user-read-private user-read-email",
-    #     "code_challenge_method": "S256",
-    #     "code_challenge": challenge,
-    # }
-    
-    # auth_url = f"https://accounts.spotify.com/authorize?{urllib.parse.urlencode(params)}"
-    # print(f"Redirecting to: {auth_url}")
-    
-    # return verifier
 
 #Flow
 #RedirectToAuth -> GetToken -> fetchProfile
