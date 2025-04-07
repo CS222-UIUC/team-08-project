@@ -81,6 +81,8 @@ def callback():
     playlist = items[0]
     print(f"Found playlist: {playlist['name']} (ID: {playlist['id']})")
     playlist_id = playlist['id']
+
+    #comment out below section if aws rds is not running
     print(playlist_id)
     # Retrieve the user's display name (username) from Spotify using the access token
     data = asyncio.run(get_user_info(access_token))
