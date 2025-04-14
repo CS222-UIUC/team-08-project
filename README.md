@@ -2,7 +2,6 @@
 
 Explore new songs and artists to find a song that you truly enjoy. Introducing TuneAI, a smart recommendation system that suggests songs based on your Spotify listening history and preferences.
 
-
 ## Features
 
 1. Login with your Spotify account to access music.
@@ -12,6 +11,7 @@ Explore new songs and artists to find a song that you truly enjoy. Introducing T
 5. Create a curated playlist that can be uploaded back to Spotify for your listening experience.
 
 ## App Architecture
+
 <div style="text-align: center;">
     <img src="app-arch.png" alt="Alt text" width="350" height="350">
 </div>
@@ -25,7 +25,6 @@ Explore new songs and artists to find a song that you truly enjoy. Introducing T
 - PostgreSQL
 - Azure/AWS
 
-
 ## Installation Guide
 
 ```bash
@@ -35,6 +34,7 @@ Explore new songs and artists to find a song that you truly enjoy. Introducing T
 ```
 
 ## Contributors
+
 - Siddharth Dayaneni
 - Shreyas Talluri
 - Krish Mewade

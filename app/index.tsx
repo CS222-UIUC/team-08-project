@@ -1,6 +1,6 @@
 import { Text, View, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
-//import * as WebBrowser from 'expo-web-browser';
+import * as WebBrowser from "expo-web-browser";
 
 // ------- IMPORTANT -------
 // ngrok setup: brew install ngrok
@@ -32,7 +32,11 @@ export default function Index() {
       const verifier = data.verifier;
       console.log("Auth URL:", auth_url);
       console.log("Verifier Expo: ", verifier);
-      //const result = await WebBrowser.openAuthSessionAsync(auth_url, `${ngrok_url}/callback`);
+      const result = await WebBrowser.openAuthSessionAsync(
+        auth_url,
+        `${ngrok_url}/callback`,
+      );
+      console.log(result);
       router.push("/playlist");
     } catch (error) {
       console.log("Error at line 10:", error);
