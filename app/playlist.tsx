@@ -1,11 +1,17 @@
 import React from 'react';
-import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, ListRenderItem } from 'react-native';
 import { useRouter } from "expo-router";
 
-// Mock data for playlists
-const ngrok_url = "https://29fb-130-126-255-168.ngrok-free.app"
+// Define the Playlist type
+type Playlist = {
+  id: string;
+  name: string;
+  imageUrl: string;
+  tracks: number;
+};
 
-const mockPlaylists = [
+// Mock data for playlists
+const mockPlaylists: Playlist[] = [
   { id: '1', name: 'Liked Songs', imageUrl: 'https://misc.scdn.co/liked-songs/liked-songs-300.png', tracks: 124 },
   { id: '2', name: 'Chill Vibes', imageUrl: 'https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228', tracks: 45 },
   { id: '3', name: 'Workout Mix', imageUrl: 'https://i.scdn.co/image/ab67706f000000025f2635e031078672e7b384a5', tracks: 32 },
@@ -16,14 +22,14 @@ const mockPlaylists = [
 export default function Playlists() {
   const router = useRouter();
 
-  const handlePlaylistSelect = (playlist: { id: any; name: any; }) => {
+  const handlePlaylistSelect = (playlist: Playlist) => {
     router.push({
       pathname: "/home",
       params: { playlistId: playlist.id, playlistName: playlist.name }
     });
   };
 
-  const renderPlaylistItem = (item: { id: any; name: any;}) => (
+  const renderPlaylistItem: ListRenderItem<Playlist> = ({ item }) => (
     <TouchableOpacity 
       style={styles.playlistItem} 
       onPress={() => handlePlaylistSelect(item)}
