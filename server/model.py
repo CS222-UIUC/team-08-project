@@ -4,10 +4,14 @@ from auth import ngrok_url
 # from routes import playlist_id
 from urllib.parse import urlencode
 from db import write_user_genre
+import os
+from dotenv import load_dotenv, find_dotenv
 
+dotenv_path = find_dotenv()
+load_dotenv(dotenv_path, override=True)  
 
 # === CONFIG ===
-GEMINI_API_KEY = 'AIzaSyBpzUJpepdVDNcgesSLIbCGMFra3a_S5vA'
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 FLASK_SERVER_URL = ngrok_url  # or your actual Flask server URL
 playlist_id = ""
 # === SETUP ===
