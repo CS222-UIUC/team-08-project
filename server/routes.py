@@ -10,6 +10,7 @@ import asyncio
 import json
 from auth import generate_code_verifier, generate_code_challenge, get_access_token, get_user_info, ngrok_url
 import requests
+from model import main_model
 load_dotenv()  
 
 routes = Blueprint('routes', __name__)
@@ -17,7 +18,7 @@ client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"
 verifier = generate_code_verifier(64) 
 challenge = ""
 access_token = ""
-playlist_id = "Hello"
+playlist_id = ""
 app = Flask(__name__)
 CORS(app, origins=["exp://10.194.148.244:8081", "http://localhost:8081"])
 
@@ -60,7 +61,7 @@ def callback():
     token_info = asyncio.run(get_access_token(client_id, code, verifier))
     access_token = token_info.get('access_token')
 
-    url = "https://api.spotify.com/v1/me/playlists?limit=1"
+    url = "https://api.spotify.com/v1/me/playlists?limit=3"
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
@@ -74,11 +75,12 @@ def callback():
 
     data = response.json()
     items = data.get("items", [])
+    print("PLAYLIST LIST "+str(len(items)))
     if not items:
         print("No playlists found.")
         return None
 
-    playlist = items[0]
+    playlist = items[2]
     print(f"Found playlist: {playlist['name']} (ID: {playlist['id']})")
     playlist_id = playlist['id']
 
@@ -87,12 +89,13 @@ def callback():
     # Retrieve the user's display name (username) from Spotify using the access token
     data = asyncio.run(get_user_info(access_token))
     display_name = data.get("display_name")
-    id = data.get("id")
+    username = data.get("id")
     print("Display Name: " + display_name)
-    print("ID: " + id)
+    print("Username: " + username)
     
     # Write user info to the database (or get the existing user's genre)
-    genre = add_or_get_user(id, display_name)
+    genre = add_or_get_user(username, display_name)
+    main_model(username, playlist_id)
 
     return access_token
     # access token is granted after user gives us permissions. We can use a users access token to retrieve information aout their spotify profile through api

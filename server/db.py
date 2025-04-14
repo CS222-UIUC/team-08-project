@@ -55,3 +55,24 @@ def add_or_get_user(username: str, display_name: str) -> str:
                     return default_genre
     finally:
         conn.close()
+
+
+def write_user_genre(username: str, new_genre: str) -> bool:
+    conn = get_db_connection()
+    
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                # Check if the user exists
+                cur.execute("SELECT 1 FROM users WHERE username = %s", (username,))
+                if cur.fetchone() is None:
+                    return False  # User does not exist
+
+                # Update the user's genre
+                cur.execute(
+                    "UPDATE users SET genre = %s WHERE username = %s",
+                    (new_genre, username)
+                )
+                return True
+    finally:
+        conn.close()
