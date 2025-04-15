@@ -38,7 +38,7 @@ def login():
             f"client_id={client_id}&"
             "response_type=code&"
             f"redirect_uri={ngrok_url}/callback&" 
-            "scope=user-read-private user-read-email user-library-read playlist-read-private playlist-read-collaborative&"      # Add scopes as needed
+            "scope=user-read-private user-read-email user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-public&"      # Add scopes as needed
             f"code_challenge={challenge}&"
             "code_challenge_method=S256"
         )
@@ -134,12 +134,13 @@ def getPlaylists():
 @app.route('/getNextSong')
 def getNextSong():
     playlist_id = request.args.get('playlist_id')
-    song_url = asyncio.run(main_model(playlist_id))
-    url = song_url
+    model_response = asyncio.run(main_model(playlist_id))
+    song_url, song_id = model_response
+
     headers = {
         "Authorization": f"Bearer {access_token}"
     }
-    response = requests.get(url, headers=headers)
+    response = requests.get(song_url, headers=headers)
     if response.status_code != 200:
         print(f"Error getting song: {response.status_code}")
         print(response.json())
@@ -156,9 +157,41 @@ def getNextSong():
         "message": "Successfully returned next song",
         "title": song_name,
         "artist": artist_name,
-        "image": image_url 
+        "imageURL": image_url,
+        "song_id": song_id
     }), 200
 
+
+@app.route('/addToPlaylist')
+def addToPlaylist():
+    playlist_id = request.args.get("playlist_id")
+    song_id = request.args.get("song_id")
+    print(f"RUNNING ---------------------------: ", song_id)
+
+    # song_id = "2WfaOiMkCvy7F5fcp2zZ8L"
+    url = "https://api.spotify.com/v1/playlists/" + playlist_id + "/tracks"
+
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
+    }
+
+    data = {
+        "uris": [f"spotify:track:{song_id}"],
+        "position": 0
+    }
+
+    response = requests.post(url, headers=headers, json=data)
+
+    if response.status_code != 201:
+        print(f"Error adding to playlist: {response.status_code}")
+        print(response.json())
+        return None
+    
+    print(f"Successfully added to playlist")
+    return jsonify({
+        "message": "Successfully added to playlist"
+    }), 200
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000, debug=True) # Replace ssl_context with real certificate in production

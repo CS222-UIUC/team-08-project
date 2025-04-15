@@ -111,7 +111,6 @@ async def main_model(playlist_id):
         song_id = response_data['tracks']['items'][0]['id']
         song_url = "https://api.spotify.com/v1/tracks/"+song_id
         print(f"Gemini's Suggested Song:  {gemini_response}\n {song_url}")
-        return song_url
+        return song_url, song_id
     else:
         print(f"Error: {response.status_code}, {response.text}")
-
