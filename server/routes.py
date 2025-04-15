@@ -3,7 +3,7 @@ import secrets
 import psycopg2
 from flask_cors import CORS
 # from flask_talisman import Talisman
-from db import get_db_connection, add_or_get_user  # Import the database connection function
+# from db import get_db_connection, add_or_get_user  # Import the database connection function
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -94,8 +94,8 @@ def callback():
     print("Username: " + username)
     
     # Write user info to the database (or get the existing user's genre)
-    genre = add_or_get_user(username, display_name)
-    main_model(username, playlist_id)
+    # genre = add_or_get_user(username, display_name)
+    # main_model(playlist_id)
 
     return access_token
     # access token is granted after user gives us permissions. We can use a users access token to retrieve information aout their spotify profile through api
@@ -107,6 +107,58 @@ def getToken():
 @app.route('/getPlaylistId')
 def getPlaylistID():
     return playlist_id
+
+@app.route('/getPlaylists')
+def getPlaylists():
+    url = "https://api.spotify.com/v1/me/playlists?limit=20"
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+
+    response = requests.get(url, headers=headers)
+
+    if response.status_code != 200:
+        print(f"Error fetching playlists: {response.status_code}")
+        print(response.json())
+        return None
+
+    data = response.json()
+    playlists = data.get("items", [])
+    print("PLAYLIST LIST "+str(len(playlists)))
+    if not playlists:
+        print("No playlists found.")
+        return None
+    
+    return playlists
+
+@app.route('/getNextSong')
+def getNextSong():
+    playlist_id = request.args.get('playlist_id')
+    song_url = asyncio.run(main_model(playlist_id))
+    url = song_url
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    response = requests.get(url, headers=headers)
+    if response.status_code != 200:
+        print(f"Error getting song: {response.status_code}")
+        print(response.json())
+        return None
+    
+    data = response.json()
+    song_name = data["name"]
+
+    artist_name = data["artists"][0]["name"]
+
+    image_url = data["album"]["images"][0]["url"]
+
+    return jsonify({
+        "message": "Successfully returned next song",
+        "title": song_name,
+        "artist": artist_name,
+        "image": image_url 
+    }), 200
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=4000, debug=True) # Replace ssl_context with real certificate in production

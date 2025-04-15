@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,17 +11,52 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 
+const ngrok_url = "https://036e-130-126-255-168.ngrok-free.app";
+
 export default function Home() {
   const { playlistId, playlistName } = useLocalSearchParams();
-
+  const [callModel, setcallModel] = useState(false);
   // State for all dynamic content
   const [songData, setSongData] = useState({
     title: "Tweaker",
     artist: "GELO",
-    startTime: "1:04",
+    image: "https://example.com/placeholder-album-art.jpg",
+    startTime: "0:00",
     endTime: "2:52",
   });
 
+  const getNextSong = async() => {
+    try {
+      const response = await fetch(`${ngrok_url}/getNextSong?playlist_id=${playlistId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Ngrok-Skip-Browser-Warning": "true",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+  
+      const data = await response.json();
+  
+      setSongData(prev => ({
+        ...prev,
+        title: data.title,
+        artist: data.artist,
+        image: data.image,
+      }));
+
+    } catch (error) {
+      console.log("Error getting next song:", error);
+    }
+  };
+
+  useEffect(() => {
+    getNextSong();
+  }, []);
+  
   // PanResponder for swipe gestures
   const pan = useRef(new Animated.ValueXY()).current;
 
@@ -37,6 +72,7 @@ export default function Home() {
             title: "Song Title",
             artist: "Artist Name",
             startTime: "Start",
+            image: "https://example.com/placeholder-album-art.jpg",
             endTime: "End",
           });
           console.log(`Swiped ${gestureState.dx > 0 ? "right" : "left"}`);
@@ -71,7 +107,7 @@ export default function Home() {
         {...panResponder.panHandlers}
       >
         <Image
-          source={{ uri: "https://example.com/placeholder-album-art.jpg" }}
+          source={{ uri:  songData.image}}
           style={styles.albumArt}
         />
       </Animated.View>
