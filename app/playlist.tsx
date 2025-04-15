@@ -20,7 +20,7 @@ type Playlist = {
 };
 
 // Define ngrok URL - make sure this matches the one in index.tsx
-const ngrok_url = "https://b070-130-126-255-92.ngrok-free.app";
+const ngrok_url = "https://036e-130-126-255-168.ngrok-free.app";
 
 export default function Playlists() {
   const router = useRouter();
@@ -36,39 +36,25 @@ export default function Playlists() {
     try {
       setLoading(true);
       
-      // First, get the access token from our server
-      const tokenResponse = await fetch(`${ngrok_url}/getToken`, {
+      // Then use the token to fetch playlists from Spotify API
+      const response = await fetch(`${ngrok_url}/getPlaylists`, {
+        method: "GET",
         headers: {
+          "Content-Type": "application/json",
           "Ngrok-Skip-Browser-Warning": "true",
         },
       });
-      const accessToken = await tokenResponse.text();
-      
-      if (!accessToken) {
-        throw new Error("Failed to get access token");
-      }
-      
-      // Then use the token to fetch playlists from Spotify API
-      const response = await fetch("https://api.spotify.com/v1/me/playlists?limit=50", {
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-        },
-      });
-      
       const data = await response.json();
-      
-      if (data.error) {
-        throw new Error(data.error.message || "Failed to fetch playlists");
-      }
-      
+
       // Transform the Spotify API response to match our Playlist type
-      const formattedPlaylists: Playlist[] = data.items.map((item: any) => ({
-        id: item.id,
-        name: item.name,
-        imageUrl: item.images && item.images.length > 0 ? item.images[0].url : "https://misc.scdn.co/liked-songs/liked-songs-300.png",
-        tracks: item.tracks.total,
-      }));
+      const formattedPlaylists: Playlist[] = Array.isArray(data)
+      ? data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          imageUrl: item.images && item.images.length > 0 ? item.images[0].url : "https://misc.scdn.co/liked-songs/liked-songs-300.png",
+          tracks: item.tracks.total,
+        }))
+      : [];
       
       setPlaylists(formattedPlaylists);
     } catch (err) {
@@ -82,7 +68,7 @@ export default function Playlists() {
   const handlePlaylistSelect = (playlist: Playlist) => {
     router.push({
       pathname: "/home",
-      params: { playlistId: playlist.id, playlistName: playlist.name },
+      params: {playlistId: playlist.id, playlistName: playlist.name},
     });
   };
 

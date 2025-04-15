@@ -3,8 +3,8 @@ from psycopg2.extras import RealDictCursor
 import os
 from dotenv import load_dotenv, find_dotenv
 
-dotenv_path = find_dotenv()
-load_dotenv(dotenv_path, override=True)  
+# dotenv_path = find_dotenv()
+# load_dotenv(dotenv_path, override=True)  
 
 def get_db_connection():
     dbname = os.environ.get("DB_NAME")
