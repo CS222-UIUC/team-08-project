@@ -148,6 +148,7 @@ export default function Home() {
 
   // PanResponder for swipe gestures
   const pan = useRef(new Animated.ValueXY()).current;
+  const swipeOpacity = useRef(new Animated.Value(0)).current;
 
   const panResponder = useRef(
     PanResponder.create({
@@ -167,14 +168,25 @@ export default function Home() {
 
           getNextSong();
         }
-        Animated.spring(pan, {
-          toValue: { x: 0, y: 0 },
-          useNativeDriver: false,
-        }).start();
+        Animated.parallel([
+          Animated.spring(pan, {
+            toValue: { x: 0, y: 0 },
+            useNativeDriver: false,
+          }),
+          Animated.timing(swipeOpacity, {
+            toValue: 0,
+            duration: 200,
+            useNativeDriver: false,
+          })
+        ]).start();
       },
-      onPanResponderMove: Animated.event([null, { dx: pan.x, dy: pan.y }], {
-        useNativeDriver: false,
-      }),
+      onPanResponderMove: (evt, gestureState) => {
+        Animated.event([null, { dx: pan.x, dy: pan.y }], {
+          useNativeDriver: false,
+        })(evt, gestureState);
+        const opacity = Math.min(Math.abs(gestureState.dx) / 200, 0.5);
+        swipeOpacity.setValue(opacity);
+      },
     }),
   ).current;
 
@@ -193,6 +205,12 @@ export default function Home() {
         style={[
           styles.albumArtContainer,
           { transform: [{ translateX: pan.x }] },
+          {
+            backgroundColor: pan.x.interpolate({
+              inputRange: [-200, 0, 200],
+              outputRange: ['rgba(255, 0, 0, 0.5)', 'rgba(238, 238, 238, 1)', 'rgba(0, 255, 0, 0.5)'],
+            })
+          }
         ]}
         {...panResponder.panHandlers}
       >
@@ -200,6 +218,50 @@ export default function Home() {
           source={{ uri:  songData.image}}
           style={styles.albumArt}
         />
+        <View style={styles.swipeHintContainer}>
+          <View style={styles.swipeHintLeft}>
+            <Ionicons name="chevron-back" size={20} color="#FF0000" />
+            <Text style={styles.swipeHintText}>No</Text>
+          </View>
+          <View style={styles.swipeHintRight}>
+            <Text style={styles.swipeHintText}>Yes</Text>
+            <Ionicons name="chevron-forward" size={20} color="#00FF00" />
+          </View>
+        </View>
+        <Animated.View 
+          style={[
+            styles.swipeIndicatorLeft, 
+            { 
+              opacity: Animated.multiply(
+                swipeOpacity,
+                pan.x.interpolate({
+                  inputRange: [-100, 0],
+                  outputRange: [1, 0],
+                  extrapolate: 'clamp'
+                })
+              )
+            }
+          ]}
+        >
+          <Text style={styles.swipeIndicatorText}>No</Text>
+        </Animated.View>
+        <Animated.View 
+          style={[
+            styles.swipeIndicatorRight, 
+            { 
+              opacity: Animated.multiply(
+                swipeOpacity,
+                pan.x.interpolate({
+                  inputRange: [0, 100],
+                  outputRange: [0, 1],
+                  extrapolate: 'clamp'
+                })
+              )
+            }
+          ]}
+        >
+          <Text style={styles.swipeIndicatorText}>Yes</Text>
+        </Animated.View>
       </Animated.View>
 
       <Text style={styles.songTitle}>{songData.title}</Text>
@@ -223,15 +285,6 @@ export default function Home() {
         </TouchableOpacity>
         <TouchableOpacity>
           <Ionicons name="play-skip-forward" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.actionButtons}>
-        <TouchableOpacity style={[styles.actionButton, styles.noButton]}>
-          <Text style={[styles.actionButtonText, styles.noButtonText]}>No</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionButton, styles.yesButton]}>
-          <Text style={styles.actionButtonText}>Yes</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -308,33 +361,46 @@ const styles = StyleSheet.create({
     padding: 10,
     marginHorizontal: 20,
   },
-  actionButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "80%",
+  swipeIndicatorLeft: {
+    position: 'absolute',
+    backgroundColor: 'rgba(255, 0, 0, 0.7)',
+    padding: 10,
+    borderRadius: 10,
+    left: 20,
   },
-  actionButton: {
-    paddingHorizontal: 40,
-    paddingVertical: 15,
-    borderRadius: 25,
-    borderWidth: 2,
+  swipeIndicatorRight: {
+    position: 'absolute',
+    backgroundColor: 'rgba(0, 255, 0, 0.7)',
+    padding: 10,
+    borderRadius: 10,
+    right: 20,
   },
-  noButton: {
-    backgroundColor: "#000000",
-    borderColor: "transparent",
-  },
-  yesButton: {
-    backgroundColor: "#FFFFFF",
-    borderColor: "#000000",
-  },
-  actionButtonText: {
-    fontWeight: "bold",
+  swipeIndicatorText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
     fontSize: 18,
   },
-  noButtonText: {
-    color: "#FFFFFF",
+  swipeHintContainer: {
+    position: 'absolute',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    bottom: 10,
+    paddingHorizontal: 20,
   },
-  yesButtonText: {
-    color: "#000000",
+  swipeHintLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    opacity: 0.7,
+  },
+  swipeHintRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    opacity: 0.7,
+  },
+  swipeHintText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginHorizontal: 5,
   },
 });
