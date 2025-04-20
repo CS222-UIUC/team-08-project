@@ -19,6 +19,10 @@ export default function Home() {
   const { playlistId, playlistName } = useLocalSearchParams();
   const sound = useRef<Audio.Sound | null>(null);
   
+  // Pan animation for the entire page content
+  const pan = useRef(new Animated.ValueXY()).current;
+  const swipeOpacity = useRef(new Animated.Value(0)).current;
+  
   // State for all dynamic content
   const [songData, setSongData] = useState({
     title: "Tweaker",
@@ -146,10 +150,6 @@ export default function Home() {
     };
   }, []);
 
-  // PanResponder for swipe gestures
-  const pan = useRef(new Animated.ValueXY()).current;
-  const swipeOpacity = useRef(new Animated.Value(0)).current;
-
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (evt, gestureState) => {
@@ -157,17 +157,25 @@ export default function Home() {
       },
       onPanResponderRelease: (evt, gestureState) => {
         if (Math.abs(gestureState.dx) > 50) {
-          // Swipe detected - update all fields
-
           console.log(`Swiped ${gestureState.dx > 0 ? "right" : "left"}`);
 
           if(gestureState.dx > 0) {
-            // Add to playlist
             addToPlayList(songID);
           }
-
-          getNextSong();
+          Animated.timing(pan, {
+            toValue: { x: gestureState.dx > 0 ? 300 : -300, y: 0 },
+            duration: 200,
+            useNativeDriver: false,
+          }).start(() => {
+            pan.setValue({ x: 0, y: 0 });
+            swipeOpacity.setValue(0);
+            getNextSong();
+          });
+          
+          return;
         }
+        
+        // Reset if not a strong enough swipe
         Animated.parallel([
           Animated.spring(pan, {
             toValue: { x: 0, y: 0 },
@@ -201,92 +209,98 @@ export default function Home() {
         <Text style={styles.importButtonText}>Import Song/Playlist</Text>
       </TouchableOpacity> */}
 
-      <Animated.View
+      <Animated.View 
         style={[
-          styles.albumArtContainer,
+          styles.pageContent,
           { transform: [{ translateX: pan.x }] },
           {
             backgroundColor: pan.x.interpolate({
-              inputRange: [-200, 0, 200],
-              outputRange: ['rgba(255, 0, 0, 0.5)', 'rgba(238, 238, 238, 1)', 'rgba(0, 255, 0, 0.5)'],
+              inputRange: [-300, -100, 0, 100, 300],
+              outputRange: ['rgba(255, 0, 0, 0.6)', 'rgba(255, 0, 0, 0.4)', '#FFFFFF', 'rgba(0, 255, 0, 0.4)', 'rgba(0, 255, 0, 0.6)'],
             })
           }
         ]}
         {...panResponder.panHandlers}
       >
-        <Image
-          source={{ uri:  songData.image}}
-          style={styles.albumArt}
-        />
-        <View style={styles.swipeHintContainer}>
+        <View style={styles.albumArtContainer}>
+          <Image
+            source={{ uri: songData.image}}
+            style={styles.albumArt}
+          />
+        </View>
+
+        <Text style={styles.songTitle}>{songData.title}</Text>
+        <Text style={styles.artistName}>{songData.artist}</Text>
+
+        <View style={styles.progressBar}>
+          <View style={styles.progress} />
+        </View>
+
+        <View style={styles.timeInfo}>
+          <Text style={styles.timeText}>{songData.startTime}</Text>
+          <Text style={styles.timeText}>{songData.endTime}</Text>
+        </View>
+
+        <View style={styles.controlsWrapper}>
           <View style={styles.swipeHintLeft}>
             <Ionicons name="chevron-back" size={20} color="#FF0000" />
             <Text style={styles.swipeHintText}>No</Text>
           </View>
+          
+          <View style={styles.controls}>
+            <TouchableOpacity>
+              <Ionicons name="play-skip-back" size={32} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.playButton}>
+              <Ionicons name="play" size={32} color="#FFFFFF" />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Ionicons name="play-skip-forward" size={32} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+          
           <View style={styles.swipeHintRight}>
             <Text style={styles.swipeHintText}>Yes</Text>
             <Ionicons name="chevron-forward" size={20} color="#00FF00" />
           </View>
         </View>
-        <Animated.View 
-          style={[
-            styles.swipeIndicatorLeft, 
-            { 
-              opacity: Animated.multiply(
-                swipeOpacity,
-                pan.x.interpolate({
-                  inputRange: [-100, 0],
-                  outputRange: [1, 0],
-                  extrapolate: 'clamp'
-                })
-              )
-            }
-          ]}
-        >
-          <Text style={styles.swipeIndicatorText}>No</Text>
-        </Animated.View>
-        <Animated.View 
-          style={[
-            styles.swipeIndicatorRight, 
-            { 
-              opacity: Animated.multiply(
-                swipeOpacity,
-                pan.x.interpolate({
-                  inputRange: [0, 100],
-                  outputRange: [0, 1],
-                  extrapolate: 'clamp'
-                })
-              )
-            }
-          ]}
-        >
-          <Text style={styles.swipeIndicatorText}>Yes</Text>
-        </Animated.View>
       </Animated.View>
-
-      <Text style={styles.songTitle}>{songData.title}</Text>
-      <Text style={styles.artistName}>{songData.artist}</Text>
-
-      <View style={styles.progressBar}>
-        <View style={styles.progress} />
-      </View>
-
-      <View style={styles.timeInfo}>
-        <Text style={styles.timeText}>{songData.startTime}</Text>
-        <Text style={styles.timeText}>{songData.endTime}</Text>
-      </View>
-
-      <View style={styles.controls}>
-        <TouchableOpacity>
-          <Ionicons name="play-skip-back" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.playButton}>
-          <Ionicons name="play" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
-        <TouchableOpacity>
-          <Ionicons name="play-skip-forward" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
-      </View>
+      
+      <Animated.View 
+        style={[
+          styles.swipeIndicatorLeft, 
+          { 
+            opacity: Animated.multiply(
+              swipeOpacity,
+              pan.x.interpolate({
+                inputRange: [-100, 0],
+                outputRange: [1, 0],
+                extrapolate: 'clamp'
+              })
+            )
+          }
+        ]}
+      >
+        <Text style={styles.swipeIndicatorText}>No</Text>
+      </Animated.View>
+      
+      <Animated.View 
+        style={[
+          styles.swipeIndicatorRight, 
+          { 
+            opacity: Animated.multiply(
+              swipeOpacity,
+              pan.x.interpolate({
+                inputRange: [0, 100],
+                outputRange: [0, 1],
+                extrapolate: 'clamp'
+              })
+            )
+          }
+        ]}
+      >
+        <Text style={styles.swipeIndicatorText}>Yes</Text>
+      </Animated.View>
     </View>
   );
 }
@@ -297,6 +311,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     alignItems: "center",
     paddingTop: 40,
+    position: "relative",
+  },
+  pageContent: {
+    width: "100%",
+    alignItems: "center",
+    paddingHorizontal: 20,
   },
   playlistName: {
     fontSize: 18,
@@ -312,6 +332,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#EEE",
     justifyContent: "center",
     alignItems: "center",
+    position: "relative",
   },
   albumArt: {
     width: "100%",
@@ -349,10 +370,11 @@ const styles = StyleSheet.create({
   timeText: {
     color: "#888888",
   },
-  controls: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+  controlsWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
     marginBottom: 30,
   },
   playButton: {
@@ -363,17 +385,19 @@ const styles = StyleSheet.create({
   },
   swipeIndicatorLeft: {
     position: 'absolute',
-    backgroundColor: 'rgba(255, 0, 0, 0.7)',
+    backgroundColor: '#C01A1A',
     padding: 10,
     borderRadius: 10,
     left: 20,
+    top: '50%',
   },
   swipeIndicatorRight: {
     position: 'absolute',
-    backgroundColor: 'rgba(0, 255, 0, 0.7)',
+    backgroundColor: '#32CD32',
     padding: 10,
     borderRadius: 10,
     right: 20,
+    top: '50%',
   },
   swipeIndicatorText: {
     color: '#FFFFFF',
@@ -387,6 +411,11 @@ const styles = StyleSheet.create({
     width: '100%',
     bottom: 10,
     paddingHorizontal: 20,
+  },
+  controls: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
   },
   swipeHintLeft: {
     flexDirection: 'row',
@@ -402,5 +431,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     marginHorizontal: 5,
+    color: "#000000",
   },
 });
