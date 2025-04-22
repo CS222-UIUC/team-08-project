@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -6,60 +6,74 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  ListRenderItem,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 
-// Mock data for playlists
-const ngrok_url = "https://29fb-130-126-255-168.ngrok-free.app";
+// Define the Playlist type
+type Playlist = {
+  id: string;
+  name: string;
+  imageUrl: string;
+  tracks: number;
+};
 
-const mockPlaylists = [
-  {
-    id: "1",
-    name: "Liked Songs",
-    imageUrl: "https://misc.scdn.co/liked-songs/liked-songs-300.png",
-    tracks: 124,
-  },
-  {
-    id: "2",
-    name: "Chill Vibes",
-    imageUrl:
-      "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228",
-    tracks: 45,
-  },
-  {
-    id: "3",
-    name: "Workout Mix",
-    imageUrl:
-      "https://i.scdn.co/image/ab67706f000000025f2635e031078672e7b384a5",
-    tracks: 32,
-  },
-  {
-    id: "4",
-    name: "Party Anthems",
-    imageUrl:
-      "https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228",
-    tracks: 67,
-  },
-  {
-    id: "5",
-    name: "Study Focus",
-    imageUrl:
-      "https://i.scdn.co/image/ab67706f00000002e4eadd417a05b2546e866934",
-    tracks: 89,
-  },
-];
+// Define ngrok URL - make sure this matches the one in index.tsx
+const ngrok_url = "https://036e-130-126-255-168.ngrok-free.app";
 
 export default function Playlists() {
   const router = useRouter();
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const handlePlaylistSelect = (playlist: { id: any; name: any }) => {
+
+  useEffect(() => {
+    fetchUserPlaylists();
+  }, []);
+
+  const fetchUserPlaylists = async () => {
+    try {
+      setLoading(true);
+      
+      // Then use the token to fetch playlists from Spotify API
+      const response = await fetch(`${ngrok_url}/getPlaylists`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Ngrok-Skip-Browser-Warning": "true",
+        },
+      });
+      const data = await response.json();
+
+      // Transform the Spotify API response to match our Playlist type
+      const formattedPlaylists: Playlist[] = Array.isArray(data)
+      ? data.map((item: any) => ({
+          id: item.id,
+          name: item.name,
+          imageUrl: item.images && item.images.length > 0 ? item.images[0].url : "https://misc.scdn.co/liked-songs/liked-songs-300.png",
+          tracks: item.tracks.total,
+        }))
+      : [];
+      
+      setPlaylists(formattedPlaylists);
+    } catch (err) {
+      console.error("Error fetching playlists:", err);
+      setError(err instanceof Error ? err.message : "Failed to load playlists");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePlaylistSelect = (playlist: Playlist) => {
     router.push({
       pathname: "/home",
-      params: { playlistId: playlist.id, playlistName: playlist.name },
+      params: {playlistId: playlist.id, playlistName: playlist.name},
     });
   };
 
-  const renderPlaylistItem = (item: { id: any; name: any }) => (
+  const renderPlaylistItem: ListRenderItem<Playlist> = ({ item }) => (
     <TouchableOpacity
       style={styles.playlistItem}
       onPress={() => handlePlaylistSelect(item)}
@@ -72,18 +86,46 @@ export default function Playlists() {
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color="#32CD32" />
+        <Text style={styles.loadingText}>Loading your playlists...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.errorContainer]}>
+        <Text style={styles.errorText}>Error: {error}</Text>
+        <TouchableOpacity 
+          style={styles.retryButton} 
+          onPress={fetchUserPlaylists}
+        >
+          <Text style={styles.retryButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Your Playlists</Text>
       <Text style={styles.subtitle}>
         Select a playlist to find similar songs
       </Text>
-      <FlatList
-        data={mockPlaylists}
-        renderItem={renderPlaylistItem}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-      />
+
+      {playlists.length === 0 ? (
+        <Text style={styles.noPlaylistsText}>No playlists found</Text>
+      ) : (
+        <FlatList
+          data={playlists}
+          renderItem={renderPlaylistItem}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.listContainer}
+        />
+      )}
     </View>
   );
 }
@@ -93,6 +135,40 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#121212",
     padding: 20,
+  },
+  loadingContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 20,
+    fontSize: 16,
+    color: "#AAAAAA",
+  },
+  errorContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#FF5252",
+    marginBottom: 20,
+  },
+  retryButton: {
+    backgroundColor: "#32CD32",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  retryButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "bold",
+  },
+  noPlaylistsText: {
+    color: "#AAAAAA",
+    fontSize: 16,
+    textAlign: "center",
+    marginTop: 20,
   },
   title: {
     fontSize: 32,

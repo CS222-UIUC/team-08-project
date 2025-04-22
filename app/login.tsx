@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import * as WebBrowser from "expo-web-browser";
+
 import { useRouter } from "expo-router";
 
 export default function Login() {
-  const router = useRouter();
+  //const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -15,8 +16,8 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
       });
       console.log("12");
-      const { auth_url, verifier }: { auth_url: string; verifier: string } =
-        await response.json();
+
+      const { auth_url }: { auth_url: string } = await response.json();
       const result = await WebBrowser.openAuthSessionAsync(
         auth_url,
         "http://127.0.0.1:7000/callback",
@@ -24,6 +25,7 @@ export default function Login() {
       if (result.type == "success") {
         const url = result.url;
         const code = new URL(url).searchParams.get("code");
+
       }
     } catch (error) {
       console.error("Error:", error);

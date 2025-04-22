@@ -4,7 +4,7 @@ import base64
 import os
 import json
 
-ngrok_url = "https://5dc8-130-126-255-168.ngrok-free.app"
+ngrok_url = "https://036e-130-126-255-168.ngrok-free.app"
 client_id = "ac5ea02e8f3646a2bcc0d6c0ec3ecc24"  
 
 def generate_code_verifier(length: int = 32) -> tuple[str, str]:

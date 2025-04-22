@@ -3,8 +3,8 @@ from psycopg2.extras import RealDictCursor
 import os
 from dotenv import load_dotenv, find_dotenv
 
-dotenv_path = find_dotenv()
-load_dotenv(dotenv_path, override=True)  
+# dotenv_path = find_dotenv()
+# load_dotenv(dotenv_path, override=True)  
 
 def get_db_connection():
     dbname = os.environ.get("DB_NAME")
@@ -53,5 +53,26 @@ def add_or_get_user(username: str, display_name: str) -> str:
                         (new_id, username, display_name, default_genre)
                     )
                     return default_genre
+    finally:
+        conn.close()
+
+
+def write_user_genre(username: str, new_genre: str) -> bool:
+    conn = get_db_connection()
+    
+    try:
+        with conn:
+            with conn.cursor() as cur:
+                # Check if the user exists
+                cur.execute("SELECT 1 FROM users WHERE username = %s", (username,))
+                if cur.fetchone() is None:
+                    return False  # User does not exist
+
+                # Update the user's genre
+                cur.execute(
+                    "UPDATE users SET genre = %s WHERE username = %s",
+                    (new_genre, username)
+                )
+                return True
     finally:
         conn.close()
