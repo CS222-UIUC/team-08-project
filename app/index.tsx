@@ -36,7 +36,7 @@ export default function Index() {
         auth_url,
         `${ngrok_url}/callback`,
       );
-      console.log(result);
+
       router.push("/playlist");
     } catch (error) {
       console.log("Error at line 10:", error);

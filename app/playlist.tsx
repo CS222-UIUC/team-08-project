@@ -28,6 +28,7 @@ export default function Playlists() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+
   useEffect(() => {
     fetchUserPlaylists();
   }, []);
@@ -114,6 +115,7 @@ export default function Playlists() {
       <Text style={styles.subtitle}>
         Select a playlist to find similar songs
       </Text>
+
       {playlists.length === 0 ? (
         <Text style={styles.noPlaylistsText}>No playlists found</Text>
       ) : (
