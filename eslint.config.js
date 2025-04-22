@@ -13,6 +13,7 @@ export default [
       sourceType: "module",
       globals: {
         ...globals.browser,
+        ...globals.jest, // <-- Add this line
       },
     },
     plugins: {

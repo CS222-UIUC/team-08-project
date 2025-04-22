@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { Audio } from 'expo-av';
+import { Audio } from "expo-av";
 
 const ngrok_url = "https://036e-130-126-255-168.ngrok-free.app";
 var songID = "";
@@ -18,7 +18,7 @@ var songID = "";
 export default function Home() {
   const { playlistId, playlistName } = useLocalSearchParams();
   const sound = useRef<Audio.Sound | null>(null);
-  
+
   // State for all dynamic content
   const [songData, setSongData] = useState({
     title: "Tweaker",
@@ -26,83 +26,87 @@ export default function Home() {
     image: "https://example.com/placeholder-album-art.jpg",
     startTime: "0:00",
     endTime: "2:52",
-    previewUrl:"",
-    song_id: "0000"
+    previewUrl: "",
+    song_id: "0000",
   });
 
   const addToPlayList = async (songID: string) => {
     try {
-      const response = await fetch(`${ngrok_url}/addToPlaylist?playlist_id=${playlistId}&song_id=${songID}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Ngrok-Skip-Browser-Warning": "true",
+      const response = await fetch(
+        `${ngrok_url}/addToPlaylist?playlist_id=${playlistId}&song_id=${songID}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Ngrok-Skip-Browser-Warning": "true",
+          },
         },
-      });
-  
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.log("Error getting next song:", error);
     }
   };
-  
+
   useEffect(() => {
     console.log("Updated songData:", songData.song_id);
   }, [songData]);
-
 
   // State for loading
   const getNextSong = async () => {
     try {
       // 1. Get the next song info from your backend
-      const response = await fetch(`${ngrok_url}/getNextSong?playlist_id=${playlistId}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Ngrok-Skip-Browser-Warning": "true",
+      const response = await fetch(
+        `${ngrok_url}/getNextSong?playlist_id=${playlistId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Ngrok-Skip-Browser-Warning": "true",
+          },
         },
-      });
-  
+      );
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-  
+
       const data = await response.json();
       const { title, artist, imageURL, song_id } = data;
       songID = song_id;
-      console.log("SONG ID: "+ songID);
-  
+      console.log("SONG ID: " + songID);
+      console.log(imageURL); // for linter checks delete when u use imageURL
       // 2. Search for the song on Deezer using title and artist
       // Use both for better accuracy
       const deezerSearchUrl = `https://api.deezer.com/search?q=track:"${encodeURIComponent(title)}" artist:"${encodeURIComponent(artist)}"`;
       const deezerResponse = await fetch(deezerSearchUrl);
       const deezerData = await deezerResponse.json();
-  
+
       let previewUrl = null;
       let image = null;
-  
+
       if (deezerData.data && deezerData.data.length > 0) {
         // Take the first result as the best match
         const track = deezerData.data[0];
         previewUrl = track.preview; // 30s MP3 preview
         image = track.album && track.album.cover_medium; // Album cover
       }
-      
-      console.log('Preview URL:', previewUrl);
+
+      console.log("Preview URL:", previewUrl);
       if (previewUrl) {
         playPreview(previewUrl);
       }
       // 3. Update your state with the new info
-      await setSongData(prev => ({
+      await setSongData((prev) => ({
         ...prev,
         title,
         artist,
         image: image || data.image, // fallback to backend image if Deezer doesn't have one
         previewUrl,
-        song_id
+        song_id,
       }));
 
       // console.log("NEW SONG ID: " + songData.song_id)
@@ -110,17 +114,15 @@ export default function Home() {
       console.log("Error getting next song:", error);
     }
   };
-  
 
   useEffect(() => {
     getNextSong();
   }, []);
 
-
   const playPreview = async (url: string) => {
     try {
       if (!url) {
-        alert('No preview available for this track.');
+        alert("No preview available for this track.");
         return;
       }
       // Unload previous sound if any
@@ -130,11 +132,11 @@ export default function Home() {
       }
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: url },
-        { shouldPlay: true }
+        { shouldPlay: true },
       );
       sound.current = newSound;
     } catch (e) {
-      console.log('Error playing preview:', e);
+      console.log("Error playing preview:", e);
     }
   };
 
@@ -160,7 +162,7 @@ export default function Home() {
 
           console.log(`Swiped ${gestureState.dx > 0 ? "right" : "left"}`);
 
-          if(gestureState.dx > 0) {
+          if (gestureState.dx > 0) {
             // Add to playlist
             addToPlayList(songID);
           }
@@ -196,10 +198,7 @@ export default function Home() {
         ]}
         {...panResponder.panHandlers}
       >
-        <Image
-          source={{ uri:  songData.image}}
-          style={styles.albumArt}
-        />
+        <Image source={{ uri: songData.image }} style={styles.albumArt} />
       </Animated.View>
 
       <Text style={styles.songTitle}>{songData.title}</Text>

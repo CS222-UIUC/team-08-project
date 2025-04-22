@@ -28,7 +28,6 @@ export default function Playlists() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-
   useEffect(() => {
     fetchUserPlaylists();
   }, []);
@@ -36,7 +35,7 @@ export default function Playlists() {
   const fetchUserPlaylists = async () => {
     try {
       setLoading(true);
-      
+
       // Then use the token to fetch playlists from Spotify API
       const response = await fetch(`${ngrok_url}/getPlaylists`, {
         method: "GET",
@@ -48,15 +47,26 @@ export default function Playlists() {
       const data = await response.json();
 
       // Transform the Spotify API response to match our Playlist type
-      const formattedPlaylists: Playlist[] = Array.isArray(data)
-      ? data.map((item: any) => ({
-          id: item.id,
-          name: item.name,
-          imageUrl: item.images && item.images.length > 0 ? item.images[0].url : "https://misc.scdn.co/liked-songs/liked-songs-300.png",
-          tracks: item.tracks.total,
-        }))
-      : [];
-      
+      const formattedPlaylists: Playlist[] = Array.isArray(data) //changed item from any to unknwon for linter checks
+        ? data.map((item: unknown) => {
+            const playlist = item as {
+              id: string;
+              name: string;
+              images?: { url: string }[];
+              tracks: { total: number };
+            };
+            return {
+              id: playlist.id,
+              name: playlist.name,
+              imageUrl:
+                playlist.images && playlist.images.length > 0
+                  ? playlist.images[0].url
+                  : "https://misc.scdn.co/liked-songs/liked-songs-300.png",
+              tracks: playlist.tracks.total,
+            };
+          })
+        : [];
+
       setPlaylists(formattedPlaylists);
     } catch (err) {
       console.error("Error fetching playlists:", err);
@@ -69,7 +79,7 @@ export default function Playlists() {
   const handlePlaylistSelect = (playlist: Playlist) => {
     router.push({
       pathname: "/home",
-      params: {playlistId: playlist.id, playlistName: playlist.name},
+      params: { playlistId: playlist.id, playlistName: playlist.name },
     });
   };
 
@@ -99,8 +109,8 @@ export default function Playlists() {
     return (
       <View style={[styles.container, styles.errorContainer]}>
         <Text style={styles.errorText}>Error: {error}</Text>
-        <TouchableOpacity 
-          style={styles.retryButton} 
+        <TouchableOpacity
+          style={styles.retryButton}
           onPress={fetchUserPlaylists}
         >
           <Text style={styles.retryButtonText}>Retry</Text>

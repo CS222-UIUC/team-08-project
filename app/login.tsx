@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
 import * as WebBrowser from "expo-web-browser";
 
-import { useRouter } from "expo-router";
+//import { useRouter } from "expo-router";
 
 export default function Login() {
   //const router = useRouter();
@@ -25,7 +25,7 @@ export default function Login() {
       if (result.type == "success") {
         const url = result.url;
         const code = new URL(url).searchParams.get("code");
-
+        console.log(code);
       }
     } catch (error) {
       console.error("Error:", error);
