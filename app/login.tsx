@@ -1,30 +1,32 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Button, StyleSheet } from "react-native";
-import * as WebBrowser from 'expo-web-browser';
+import * as WebBrowser from "expo-web-browser";
 import { useRouter } from "expo-router";
-
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-
-  const handleLogin = async() => {
+  const handleLogin = async () => {
     try {
-      const response = await fetch('http://127.0.0.1:7000/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("http://127.0.0.1:7000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
       console.log("12");
-      const { auth_url, verifier }: { auth_url: string; verifier: string } = await response.json();      
-      const result = await WebBrowser.openAuthSessionAsync(auth_url, 'http://127.0.0.1:7000/callback');
-      if (result.type == 'success'){
+      const { auth_url, verifier }: { auth_url: string; verifier: string } =
+        await response.json();
+      const result = await WebBrowser.openAuthSessionAsync(
+        auth_url,
+        "http://127.0.0.1:7000/callback",
+      );
+      if (result.type == "success") {
         const url = result.url;
-        const code = new URL(url).searchParams.get('code');
+        const code = new URL(url).searchParams.get("code");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -49,11 +51,7 @@ export default function Login() {
       />
 
       <View style={styles.buttonContainer}>
-        <Button 
-          title="Login" 
-          onPress={handleLogin} 
-          color="#32CD32"
-        />
+        <Button title="Login" onPress={handleLogin} color="#32CD32" />
       </View>
     </View>
   );
@@ -86,5 +84,5 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: "80%",
-  }
+  },
 });
