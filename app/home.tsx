@@ -70,14 +70,13 @@ export default function Home() {
         },
       );
 
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      const {title, artist} = data;
-      console.log("TTILEE:  "+title)
+      const { title, artist } = data;
+      console.log("TTILEE:  " + title);
       // songID = song_id;
       // console.log("SONG ID: " + songID);
       // console.log(imageURL); // for linter checks delete when u use imageURL

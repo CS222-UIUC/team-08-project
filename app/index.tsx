@@ -1,7 +1,7 @@
-import { Text, View, Button, StyleSheet } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { TouchableOpacity } from "react-native";
+//import { TouchableOpacity } from "react-native";
 import { Pressable } from "react-native";
 
 // ------- IMPORTANT -------
@@ -80,20 +80,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#121212", // Dark gray/black background
   },
   button: {
-    backgroundColor: '#32CD32', // Green highlight
+    backgroundColor: "#32CD32", // Green highlight
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 25, // Rounded corners
-    alignItems: 'center',
+    alignItems: "center",
   },
   buttonPressed: {
     transform: [{ scale: 0.95 }],
     opacity: 0.8,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
   text: {
     color: "#FFFFFF", // White text
