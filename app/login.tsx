@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderColor: "#32CD32",
     borderWidth: 1,
-    borderRadius: 8,
+    borderRadius: 25,
     marginBottom: 15,
     paddingHorizontal: 10,
     color: "#FFFFFF",
@@ -86,5 +86,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: "80%",
+    borderRadius: 25,
+    overflow: "hidden",
   },
 });

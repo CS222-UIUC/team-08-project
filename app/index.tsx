@@ -1,6 +1,8 @@
 import { Text, View, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 
 // ------- IMPORTANT -------
 // ngrok setup: brew install ngrok
@@ -44,13 +46,28 @@ export default function Index() {
   };
 
   return (
+    // <View style={styles.container}>
+    //   <Text style={styles.text}>TuneAi</Text>
+    //   <Button
+    //     title="Login With Spotify"
+    //     onPress={handleLogin}
+    //     color="#32CD32" // Green highlight
+    //   />
+    // </View>
     <View style={styles.container}>
       <Text style={styles.text}>TuneAi</Text>
-      <Button
-        title="Login With Spotify"
+      {/* <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login With Spotify</Text>
+      </TouchableOpacity> */}
+      <Pressable
         onPress={handleLogin}
-        color="#32CD32" // Green highlight
-      />
+        style={({ pressed }) => [
+          styles.button,
+          pressed && styles.buttonPressed,
+        ]}
+      >
+        <Text style={styles.buttonText}>Login With Spotify</Text>
+      </Pressable>
     </View>
   );
 }
@@ -61,6 +78,22 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#121212", // Dark gray/black background
+  },
+  button: {
+    backgroundColor: '#32CD32', // Green highlight
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25, // Rounded corners
+    alignItems: 'center',
+  },
+  buttonPressed: {
+    transform: [{ scale: 0.95 }],
+    opacity: 0.8,
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   text: {
     color: "#FFFFFF", // White text
