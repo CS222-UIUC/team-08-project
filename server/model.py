@@ -17,6 +17,32 @@ playlist_id = ""
 # === SETUP ===
 genai.configure(api_key=GEMINI_API_KEY)
 
+class GeminiSongQueue:
+    def __init__(self):
+        self.song_artist_tuples = []
+        self.index = 0
+
+    def refill(self, playlist_items):
+        # Call Gemini and parse response
+        gemini_response = get_gemini_url(playlist_items)
+        pairs = gemini_response.split('; ')
+        self.song_artist_tuples = [tuple(pair.split('/ ')) for pair in pairs]
+        self.index = 0
+
+    def get_next(self, playlist_items):
+        # If we've used all songs, refill
+        if self.index >= len(self.song_artist_tuples):
+            self.refill(playlist_items)
+        # Get next song-artist tuple
+        song_artist = self.song_artist_tuples[self.index]
+        print("song_artist var: ", song_artist)
+        self.index += 1
+        song_name = song_artist[0]
+        print("song_name var: ", song_name)
+        artist = song_artist[1]
+        return song_name, artist
+    
+
 def get_access_token():
     response = requests.get(FLASK_SERVER_URL+"/getToken")
     response.raise_for_status()
@@ -27,23 +53,27 @@ def get_playlist_id():
     response.raise_for_status()
     return response.text.strip() 
 
+# Gemini returns 10 song recs
 def get_gemini_url(songs):
     model = genai.GenerativeModel(model_name="models/gemini-1.5-flash-001")
-
+    
     song_list_text = "\n".join(
-        [f"- '{song['track']['name']}' by {', '.join(artist['name'] for artist in song['track']['artists'])} (ID: {song['track']['id']})"for song in songs if song.get('track')]
+        [f"- '{song['track']['name']}' by {', '.join(artist['name'] for artist in song['track']['artists'])} (ID: {song['track']['id']})" 
+         for song in songs if song.get('track')]
     )
-    print("CALLED Gemini URL")
+    
     prompt = (
-        f"Given the following list of songs and artists, recommend **one** similar song that fits the overall vibe "
-        f"and provide only the song name and artist in this format(Song, Artist):\n\n"
-        f"{song_list_text}\n\n"
+        f"Given the following list of songs, recommend **ten** similar songs that fit the overall vibe. "
+        f"Use EXACTLY this format (no numbers, no markdown):\n"
+        f"Song Name/ Artist Name; Song Name/ Artist Name; ...\n\n"
+        f"Songs:\n{song_list_text}"
     )
-
+    
     response = model.generate_content(prompt)
+    print("Gemini Raw Response:", response.text)  # Debugging
     return response.text.strip()
 
-
+#Gemini returns Genre of playlist
 def get_gemini_genre(songs):
     model = genai.GenerativeModel(model_name="models/gemini-1.5-flash-001")
 
@@ -61,56 +91,45 @@ def get_gemini_genre(songs):
 
 
 def get_playlist_tracks(playlist_id, token):
-    url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
+    url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"  # ✅ Correct URL format
     headers = {"Authorization": f"Bearer {token}"}
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    return response.json()
+    
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raise exception for 4xx/5xx errors
+        return response.json()
+    except requests.exceptions.HTTPError as err:
+        print(f"Spotify API Error: {err}")
+        return None
 
-def get_audio_features(track_id, token):
-    url = f"https://api.spotify.com/v1/audio-features/{track_id}"
-    headers = {"Authorization": f"Bearer {token}"}
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()
-    return response.json()
+
+gemini_queue = GeminiSongQueue()
 
 async def main_model(playlist_id):
-    token = get_access_token()
-    print("Token: "+token)
-    print("ID: "+playlist_id)
-    playlist_data = get_playlist_tracks(playlist_id, token)
+    try:
+        token = get_access_token()
+        playlist_data = get_playlist_tracks(playlist_id, token)
+    
 
-    print(f"\nFound {len(playlist_data['items'])} tracks in the playlist.\n")
+        # Get next song from queue
+        song_name, artist = gemini_queue.get_next(playlist_data['items'])
+        print("Song Name from main model: ", song_name)
+        # Spotify API call
+        # response = requests.get(
+        #     "https://api.spotify.com/v1/search",
+        #     params={"q": f'track:"{song_name}" artist:"{artist}"', "type": "track"},
+        #     headers={"Authorization": f"Bearer {token}"}
+        # )
+        
+        # if response.status_code != 200:
+        #     return {"error": "Spotify API failed"}, 500  # Explicit error
 
-    gemini_response = get_gemini_url(playlist_data['items'])
-    song_name, artist = gemini_response.split(", ")
-    base_url = "https://api.spotify.com/v1/search"
-
-    # URL parameters
-    params = {
-        "q": f'track:"{song_name}" artist:"{artist}"',
-        "type": "track"
-    }
-
-    # Encode the parameters into a query string
-    query_string = urlencode(params)
-
-    # Construct the full URL
-    rec_url = f"{base_url}?{query_string}"
-    headers = {
-        "Authorization": f"Bearer {token}"
-    }
-
-    # write_user_genre(username, get_gemini_genre(playlist_data['items']))
-
-    # Make the API request
-    response = requests.get(rec_url, headers=headers)
-
-    if response.status_code == 200:
-        response_data= response.json()
-        song_id = response_data['tracks']['items'][0]['id']
-        song_url = "https://api.spotify.com/v1/tracks/"+song_id
-        print(f"Gemini's Suggested Song:  {gemini_response}\n {song_url}")
-        return song_url, song_id
-    else:
-        print(f"Error: {response.status_code}, {response.text}")
+        # track_data = response.json()['tracks']['items'][0]
+        return {
+            "song_name": song_name,
+            "artist": artist
+        }
+        
+    except Exception as e:
+        print(f"Backend Error: {str(e)}")  # Log the error
+        return {"error": str(e)}, 500
