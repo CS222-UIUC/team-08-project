@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 
-const ngrok_url = "https://036e-130-126-255-168.ngrok-free.app";
+const ngrok_url = "https://ae5f-130-126-255-168.ngrok-free.app";
 var songID = "";
 
 export default function Home() {
@@ -70,15 +70,17 @@ export default function Home() {
         },
       );
 
+
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
       const data = await response.json();
-      const { title, artist, imageURL, song_id } = data;
-      songID = song_id;
-      console.log("SONG ID: " + songID);
-      console.log(imageURL); // for linter checks delete when u use imageURL
+      const {title, artist} = data;
+      console.log("TTILEE:  "+title)
+      // songID = song_id;
+      // console.log("SONG ID: " + songID);
+      // console.log(imageURL); // for linter checks delete when u use imageURL
       // 2. Search for the song on Deezer using title and artist
       // Use both for better accuracy
       const deezerSearchUrl = `https://api.deezer.com/search?q=track:"${encodeURIComponent(title)}" artist:"${encodeURIComponent(artist)}"`;
@@ -106,7 +108,7 @@ export default function Home() {
         artist,
         image: image || data.image, // fallback to backend image if Deezer doesn't have one
         previewUrl,
-        song_id,
+        // song_id,
       }));
 
       // console.log("NEW SONG ID: " + songData.song_id)

@@ -84,14 +84,14 @@ def callback():
     print(f"Found playlist: {playlist['name']} (ID: {playlist['id']})")
     playlist_id = playlist['id']
 
-    #comment out below section if aws rds is not running
-    print(playlist_id)
-    # Retrieve the user's display name (username) from Spotify using the access token
-    data = asyncio.run(get_user_info(access_token))
-    display_name = data.get("display_name")
-    username = data.get("id")
-    print("Display Name: " + display_name)
-    print("Username: " + username)
+    # #comment out below section if aws rds is not running
+    # print(playlist_id)
+    # # Retrieve the user's display name (username) from Spotify using the access token
+    # data = asyncio.run(get_user_info(access_token))
+    # display_name = data.get("display_name")
+    # username = data.get("id")
+    # print("Display Name: " + display_name)
+    # print("Username: " + username)
     
     # Write user info to the database (or get the existing user's genre)
     # genre = add_or_get_user(username, display_name)
@@ -135,30 +135,29 @@ def getPlaylists():
 def getNextSong():
     playlist_id = request.args.get('playlist_id')
     model_response = asyncio.run(main_model(playlist_id))
-    song_url, song_id = model_response
-
-    headers = {
-        "Authorization": f"Bearer {access_token}"
-    }
-    response = requests.get(song_url, headers=headers)
-    if response.status_code != 200:
-        print(f"Error getting song: {response.status_code}")
-        print(response.json())
-        return None
+    song_name = model_response["song_name"]
+    artist = model_response["artist"]   
+    print("Song Name from getNextSong: ", song_name)
+    # headers = {
+    #     "Authorization": f"Bearer {access_token}"
+    # }
+    # response = requests.get(song_url, headers=headers)
+    # if response.status_code != 200:
+    #     print(f"Error getting song: {response.status_code}")
+    #     print(response.json())
+    #     return None
     
-    data = response.json()
-    song_name = data["name"]
+    # data = response.json()
+    # song_name = data["name"]
 
-    artist_name = data["artists"][0]["name"]
+    # artist_name = data["artists"][0]["name"]
 
-    image_url = data["album"]["images"][0]["url"]
+    # image_url = data["album"]["images"][0]["url"]
 
     return jsonify({
         "message": "Successfully returned next song",
         "title": song_name,
-        "artist": artist_name,
-        "imageURL": image_url,
-        "song_id": song_id
+        "artist": artist,
     }), 200
 
 
