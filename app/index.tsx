@@ -2,6 +2,7 @@ import { Text, View, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { TouchableOpacity } from "react-native";
+import { Pressable } from "react-native";
 
 // ------- IMPORTANT -------
 // ngrok setup: brew install ngrok
@@ -55,9 +56,18 @@ export default function Index() {
     // </View>
     <View style={styles.container}>
       <Text style={styles.text}>TuneAi</Text>
-      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+      {/* <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login With Spotify</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <Pressable
+        onPress={handleLogin}
+        style={({ pressed }) => [
+          styles.button,
+          pressed && styles.buttonPressed,
+        ]}
+      >
+        <Text style={styles.buttonText}>Login With Spotify</Text>
+      </Pressable>
     </View>
   );
 }
@@ -75,6 +85,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     borderRadius: 25, // Rounded corners
     alignItems: 'center',
+  },
+  buttonPressed: {
+    transform: [{ scale: 0.95 }],
+    opacity: 0.8,
   },
   buttonText: {
     color: '#fff',
