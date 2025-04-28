@@ -154,9 +154,9 @@ const styles = StyleSheet.create({
   },
   retryButton: {
     backgroundColor: "#32CD32",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 5,
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 30,
   },
   retryButtonText: {
     color: "#FFFFFF",
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#1E1E1E",
-    borderRadius: 8,
+    borderRadius: 15,
     marginBottom: 12,
     padding: 12,
     borderLeftWidth: 4,
@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
   playlistImage: {
     width: 60,
     height: 60,
-    borderRadius: 4,
+    borderRadius: 30,
     marginRight: 15,
   },
   playlistInfo: {

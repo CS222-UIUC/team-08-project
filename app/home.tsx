@@ -304,8 +304,8 @@ const styles = StyleSheet.create({
   },
   playButton: {
     backgroundColor: "#000000",
-    borderRadius: 30,
-    padding: 10,
+    borderRadius: 40,
+    padding: 15,
     marginHorizontal: 20,
   },
   actionButtons: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   actionButton: {
     paddingHorizontal: 40,
     paddingVertical: 15,
-    borderRadius: 25,
+    borderRadius: 35,
     borderWidth: 2,
   },
   noButton: {

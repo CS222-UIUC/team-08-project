@@ -1,6 +1,7 @@
 import { Text, View, Button, StyleSheet } from "react-native";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+import { TouchableOpacity } from "react-native";
 
 // ------- IMPORTANT -------
 // ngrok setup: brew install ngrok
@@ -44,13 +45,19 @@ export default function Index() {
   };
 
   return (
+    // <View style={styles.container}>
+    //   <Text style={styles.text}>TuneAi</Text>
+    //   <Button
+    //     title="Login With Spotify"
+    //     onPress={handleLogin}
+    //     color="#32CD32" // Green highlight
+    //   />
+    // </View>
     <View style={styles.container}>
       <Text style={styles.text}>TuneAi</Text>
-      <Button
-        title="Login With Spotify"
-        onPress={handleLogin}
-        color="#32CD32" // Green highlight
-      />
+      <TouchableOpacity style={styles.button} onPress={handleLogin}>
+        <Text style={styles.buttonText}>Login With Spotify</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -61,6 +68,18 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#121212", // Dark gray/black background
+  },
+  button: {
+    backgroundColor: '#32CD32', // Green highlight
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 25, // Rounded corners
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   text: {
     color: "#FFFFFF", // White text
