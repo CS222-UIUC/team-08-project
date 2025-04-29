@@ -12,8 +12,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 
-const ngrok_url = "https://569a-130-126-255-44.ngrok-free.app";
+const ngrok_url = "https://6026-130-126-255-44.ngrok-free.app";
 var songID = "";
+var songTitle = "";
+var artistName = "";
 
 export default function Home() {
   const { playlistId, playlistName } = useLocalSearchParams();
@@ -51,10 +53,10 @@ export default function Home() {
     }
   };
 
-  const rejectSong = async () => {
+  const rejectSong = async (songTitle: string, artist: string) => {
     try {
       const response = await fetch(
-        `${ngrok_url}/rejectSong?song_id=${songID}`,
+        `${ngrok_url}/rejectSong?song_title=${songTitle}&artist_name=${artist}`,
         {
           method: "POST",
           headers: {
@@ -98,6 +100,9 @@ export default function Home() {
 
       const data = await response.json();
       const {title, artist} = data;
+      songTitle = title;
+      artistName = artist;
+
       console.log("TTILEE:  "+title)
       // songID = song_id;
       // console.log("SONG ID: " + songID);
@@ -190,7 +195,7 @@ export default function Home() {
             addToPlayList(songID);
           }
           else {
-            rejectSong();
+            rejectSong(songTitle, artistName);
           }
 
           getNextSong();

@@ -161,14 +161,22 @@ def getNextSong():
     }), 200
 
 
-@app.route('/rejectSong')
+@app.route('/rejectSong', methods=['POST'])
 def rejectSong():
-    song_id = request.args.get('song_id')
-    add_to_reject_list(song_id)
+    song_title = request.args.get('song_title')
+    artist_name = request.args.get('artist_name')
+
+    print("Song ID from rejectSong: ", song_title)
+
+    string_to_pass = song_title + ", " + artist_name
+
+    data = asyncio.run(get_user_info(access_token))
+    username = data.get("id")
+    add_to_reject_list(username, string_to_pass)
 
     return jsonify({
         "message": "Successfully rejected song",
-        "song_id": song_id,
+        "song_title": song_title,
     }), 200
 
 

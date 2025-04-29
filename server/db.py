@@ -78,7 +78,7 @@ def write_user_genre(username: str, new_genre: str) -> bool:
         conn.close()
 
 
-def add_to_reject_list(username: str, song_id: str) -> bool:
+def add_to_reject_list(username: str, string: str) -> bool:
     conn = get_db_connection()
     
     try:
@@ -86,11 +86,11 @@ def add_to_reject_list(username: str, song_id: str) -> bool:
             with conn.cursor() as cur:
                 # Check if the user exists
                 cur.execute("SELECT reject_list FROM users WHERE username = %s", (username,))
-                if cur.fetchone() is None:
+                result = cur.fetchone()
+                if result is None:
                     return False  # User does not exist
 
                 # Update the user's reject_list by appending the new song_id.
-                # The COALESCE function ensures that we have an empty array if reject_list is NULL.
                 cur.execute(
                     """
                     UPDATE users
@@ -100,7 +100,7 @@ def add_to_reject_list(username: str, song_id: str) -> bool:
                     )
                     WHERE username = %s
                     """,
-                    (song_id, username)
+                    (string, username)
                 )
                 return True
     finally:
