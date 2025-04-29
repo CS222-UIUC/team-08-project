@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 
-const ngrok_url = "https://ae5f-130-126-255-168.ngrok-free.app";
+const ngrok_url = "https://569a-130-126-255-44.ngrok-free.app";
 var songID = "";
 
 export default function Home() {
@@ -50,6 +50,27 @@ export default function Home() {
       console.log("Error getting next song:", error);
     }
   };
+
+  const rejectSong = async () => {
+    try {
+      const response = await fetch(
+        `${ngrok_url}/rejectSong?song_id=${songID}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Ngrok-Skip-Browser-Warning": "true",
+          },
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+    } catch (error) {
+      console.log("Error getting next song:", error);
+    }
+  }
 
   useEffect(() => {
     console.log("Updated songData:", songData.song_id);
@@ -167,6 +188,9 @@ export default function Home() {
           if (gestureState.dx > 0) {
             // Add to playlist
             addToPlayList(songID);
+          }
+          else {
+            rejectSong();
           }
 
           getNextSong();
