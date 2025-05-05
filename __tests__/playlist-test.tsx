@@ -2,13 +2,12 @@ import React from "react";
 import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import Playlists from "../app/playlist";
 import { useRouter } from "expo-router";
+declare const global: typeof globalThis;
 
-// Mock useRouter
 jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
 }));
 
-// Mock global fetch
 global.fetch = jest.fn();
 
 describe("Playlists screen", () => {
@@ -52,7 +51,9 @@ describe("Playlists screen", () => {
   });
 
   it("shows error and retry button on fetch failure", async () => {
-    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error("Network fail"));
+    (global.fetch as jest.Mock).mockRejectedValueOnce(
+      new Error("Network fail"),
+    );
     const { getByText } = render(<Playlists />);
     await waitFor(() => {
       expect(getByText(/Error:/)).toBeTruthy();
@@ -84,7 +85,7 @@ describe("Playlists screen", () => {
         },
       ],
     });
-    const { getByText, getByRole } = render(<Playlists />);
+    const { getByText } = render(<Playlists />);
     await waitFor(() => getByText("No Image Playlist"));
     // You could check the Image source prop here if you assign a testID to the <Image /> in your component
   });

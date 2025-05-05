@@ -3,18 +3,16 @@ import { render, fireEvent, waitFor } from "@testing-library/react-native";
 import Index from "../app/index";
 import { useRouter } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
+declare const global: typeof globalThis;
 
-// Mock router
 jest.mock("expo-router", () => ({
   useRouter: jest.fn(),
 }));
 
-// Mock WebBrowser
 jest.mock("expo-web-browser", () => ({
   openAuthSessionAsync: jest.fn(),
 }));
 
-// Mock global fetch
 global.fetch = jest.fn();
 
 describe("Index Screen", () => {
@@ -40,7 +38,9 @@ describe("Index Screen", () => {
       }),
     });
     // Mock WebBrowser
-    (WebBrowser.openAuthSessionAsync as jest.Mock).mockResolvedValueOnce({ type: "success" });
+    (WebBrowser.openAuthSessionAsync as jest.Mock).mockResolvedValueOnce({
+      type: "success",
+    });
 
     const { getByText } = render(<Index />);
     const button = getByText("Login With Spotify");
@@ -52,11 +52,11 @@ describe("Index Screen", () => {
         expect.stringContaining("/login"),
         expect.objectContaining({
           method: "GET",
-        })
+        }),
       );
       expect(WebBrowser.openAuthSessionAsync).toHaveBeenCalledWith(
         "https://spotify.com/auth",
-        expect.stringContaining("/callback")
+        expect.stringContaining("/callback"),
       );
       expect(mockPush).toHaveBeenCalledWith("/playlist");
     });
@@ -64,7 +64,9 @@ describe("Index Screen", () => {
 
   it("logs error if fetch fails", async () => {
     const consoleSpy = jest.spyOn(console, "log").mockImplementation();
-    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error("Network error"));
+    (global.fetch as jest.Mock).mockRejectedValueOnce(
+      new Error("Network error"),
+    );
 
     const { getByText } = render(<Index />);
     fireEvent.press(getByText("Login With Spotify"));
@@ -72,7 +74,7 @@ describe("Index Screen", () => {
     await waitFor(() => {
       expect(consoleSpy).toHaveBeenCalledWith(
         "Error at line 10:",
-        expect.any(Error)
+        expect.any(Error),
       );
     });
 
