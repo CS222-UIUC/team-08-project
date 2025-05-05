@@ -2,7 +2,7 @@
 
 ## Introduction
 
-TuneAI is a  mobile app that recommends users songs based on their listening preferences and swipe feedback.
+TuneAI is a mobile app that recommends users songs based on their listening preferences and swipe feedback.
 Using uploaded Spotify playlists and continued user input over time, the app learns to understand user music preferences.
 
 ## Features
@@ -42,7 +42,7 @@ cd team-08-project
 
 Install Python project dependencies from requirements.txt:
 
-``` bash
+```bash
 pip install -r requirements.txt
 ```
 
@@ -50,7 +50,7 @@ pip install -r requirements.txt
 
 Install Node.js project dependencies from package.json:
 
-``` bash
+```bash
 npm install
 ```
 
@@ -69,7 +69,6 @@ To run the React Native app, navigate back to the main directory and start:
 cd ..
 npx expo start
 ```
-
 
 ## Contributors
 
