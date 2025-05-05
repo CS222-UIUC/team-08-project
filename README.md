@@ -24,7 +24,6 @@ Using uploaded Spotify playlists and continued user input over time, the app lea
 - React Native
 - Flask
 - Spotify Web API
-- OAuth
 - PostgreSQL
 - AWS (Amazon RDS)
 
