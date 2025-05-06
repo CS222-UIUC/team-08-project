@@ -115,17 +115,25 @@ async def main_model(playlist_id):
         song_name, artist = gemini_queue.get_next(playlist_data['items'])
         print("Song Name from main model: ", song_name)
         # Spotify API call
-        # response = requests.get(
-        #     "https://api.spotify.com/v1/search",
-        #     params={"q": f'track:"{song_name}" artist:"{artist}"', "type": "track"},
-        #     headers={"Authorization": f"Bearer {token}"}
-        # )
+        response = requests.get(
+            "https://api.spotify.com/v1/search",
+            params={"q": f'track:"{song_name}" artist:"{artist}"', "type": "track"},
+            headers={"Authorization": f"Bearer {token}"}
+        )
         
-        # if response.status_code != 200:
-        #     return {"error": "Spotify API failed"}, 500  # Explicit error
+        if response.status_code != 200:
+            return {"error": "Spotify API failed"}, 500  # Explicit error
 
-        # track_data = response.json()['tracks']['items'][0]
+        tracks = response.json().get('tracks', {}).get('items', [])
+        if not tracks:
+            return {"error": "No tracks found"}, 404
+
+        track_id = tracks[0]['id']
+        print("ID: " + track_id)
+        song_url = f"https://api.spotify.com/v1/tracks/{track_id}"
+
         return {
+            "song_url": song_url,
             "song_name": song_name,
             "artist": artist
         }
