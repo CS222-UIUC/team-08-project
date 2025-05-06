@@ -97,7 +97,7 @@ def callback():
     # genre = add_or_get_user(username, display_name)
     # main_model(playlist_id)
 
-    return access_token
+    return "Success! You can close this window now."
     # access token is granted after user gives us permissions. We can use a users access token to retrieve information aout their spotify profile through api
 
 @app.route('/getToken')
