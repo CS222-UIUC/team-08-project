@@ -2,8 +2,8 @@ from flask import Flask, Blueprint, request, jsonify, render_template, session, 
 import secrets
 import psycopg2
 from flask_cors import CORS
-# from flask_talisman import Talisman
-# from db import get_db_connection, add_or_get_user  # Import the database connection function
+from flask_talisman import Talisman
+from db import get_db_connection, add_or_get_user  # Import the database connection function
 from dotenv import load_dotenv
 import os
 import asyncio
@@ -38,7 +38,7 @@ def login():
             f"client_id={client_id}&"
             "response_type=code&"
             f"redirect_uri={ngrok_url}/callback&" 
-            "scope=user-read-private user-read-email user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-public&"      # Add scopes as needed
+            "scope=user-read-private user-read-email user-library-read user-library-modify playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private&"      # Add scopes as needed
             f"code_challenge={challenge}&"
             "code_challenge_method=S256"
         )
@@ -85,17 +85,17 @@ def callback():
     playlist_id = playlist['id']
 
     # #comment out below section if aws rds is not running
-    # print(playlist_id)
+    print(playlist_id)
     # # Retrieve the user's display name (username) from Spotify using the access token
-    # data = asyncio.run(get_user_info(access_token))
-    # display_name = data.get("display_name")
-    # username = data.get("id")
-    # print("Display Name: " + display_name)
-    # print("Username: " + username)
+    data = asyncio.run(get_user_info(access_token))
+    display_name = data.get("display_name")
+    username = data.get("id")
+    print("Display Name: " + display_name)
+    print("Username: " + username)
     
     # Write user info to the database (or get the existing user's genre)
-    # genre = add_or_get_user(username, display_name)
-    # main_model(playlist_id)
+    genre = add_or_get_user(username, display_name)
+    main_model(playlist_id)
 
     return "Success! You can close this window now."
     # access token is granted after user gives us permissions. We can use a users access token to retrieve information aout their spotify profile through api
@@ -135,20 +135,21 @@ def getPlaylists():
 def getNextSong():
     playlist_id = request.args.get('playlist_id')
     model_response = asyncio.run(main_model(playlist_id))
+    song_url = model_response["song_url"]
     song_name = model_response["song_name"]
     artist = model_response["artist"]   
     print("Song Name from getNextSong: ", song_name)
-    # headers = {
-    #     "Authorization": f"Bearer {access_token}"
-    # }
-    # response = requests.get(song_url, headers=headers)
-    # if response.status_code != 200:
-    #     print(f"Error getting song: {response.status_code}")
-    #     print(response.json())
-    #     return None
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+    response = requests.get(song_url, headers=headers)
+    if response.status_code != 200:
+        print(f"Error getting song: {response.status_code}")
+        print(response.json())
+        return None
     
-    # data = response.json()
-    # song_name = data["name"]
+    data = response.json()
+    song_name = data["name"]
 
     # artist_name = data["artists"][0]["name"]
 
