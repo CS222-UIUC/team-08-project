@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { Audio } from "expo-av";
 
-const ngrok_url = "https://ae5f-130-126-255-168.ngrok-free.app";
+const ngrok_url = "https://a20f-130-126-255-168.ngrok-free.app";
 var songID = "";
 
 export default function Home() {
@@ -21,11 +21,11 @@ export default function Home() {
 
   // State for all dynamic content
   const [songData, setSongData] = useState({
-    title: "Tweaker",
-    artist: "GELO",
+    title: "Loading..",
+    artist: "Loading..",
     image: "https://example.com/placeholder-album-art.jpg",
-    startTime: "0:00",
-    endTime: "2:52",
+    startTime: "<- Next Song",
+    endTime: "Add to Playlist ->",
     previewUrl: "",
     song_id: "0000",
   });
@@ -75,10 +75,14 @@ export default function Home() {
       }
 
       const data = await response.json();
-      const { title, artist } = data;
-      console.log("TTILEE:  " + title);
-      // songID = song_id;
-      // console.log("SONG ID: " + songID);
+      const message = data.message;
+      const title = data.title;
+      const artist = data.artist;
+      const song_id = data.song_id;
+
+      console.log("TITLE:  " + title);
+      songID = song_id;
+      console.log("SONG ID: " + songID);
       // console.log(imageURL); // for linter checks delete when u use imageURL
       // 2. Search for the song on Deezer using title and artist
       // Use both for better accuracy
@@ -218,22 +222,22 @@ export default function Home() {
         <TouchableOpacity>
           <Ionicons name="play-skip-back" size={32} color="#FFFFFF" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.playButton}>
+        {/* <TouchableOpacity style={styles.playButton}>
           <Ionicons name="play" size={32} color="#FFFFFF" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity>
           <Ionicons name="play-skip-forward" size={32} color="#FFFFFF" />
         </TouchableOpacity>
       </View>
 
-      <View style={styles.actionButtons}>
+      {/* <View style={styles.actionButtons}>
         <TouchableOpacity style={[styles.actionButton, styles.noButton]}>
           <Text style={[styles.actionButtonText, styles.noButtonText]}>No</Text>
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionButton, styles.yesButton]}>
           <Text style={styles.actionButtonText}>Yes</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 }
@@ -243,12 +247,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#FFFFFF",
     alignItems: "center",
-    paddingTop: 40,
+    paddingTop: 230,
   },
   playlistName: {
-    fontSize: 18,
+    fontSize: 25,
     color: "#000000",
-    marginBottom: 20,
+    marginBottom: 25,
+    fontFamily: 'sans-serif',
+    fontWeight: "bold",
   },
   albumArtContainer: {
     width: 300,

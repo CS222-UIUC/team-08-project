@@ -137,7 +137,9 @@ def getNextSong():
     model_response = asyncio.run(main_model(playlist_id))
     song_url = model_response["song_url"]
     song_name = model_response["song_name"]
+    song_id = model_response["song_id"]
     artist = model_response["artist"]   
+
     print("Song Name from getNextSong: ", song_name)
     headers = {
         "Authorization": f"Bearer {access_token}"
@@ -159,6 +161,7 @@ def getNextSong():
         "message": "Successfully returned next song",
         "title": song_name,
         "artist": artist,
+        "song_id": song_id
     }), 200
 
 

@@ -20,7 +20,7 @@ type Playlist = {
 };
 
 // Define ngrok URL - make sure this matches the one in index.tsx
-const ngrok_url = "https://ae5f-130-126-255-168.ngrok-free.app";
+const ngrok_url = "https://a20f-130-126-255-168.ngrok-free.app";
 
 export default function Playlists() {
   const router = useRouter();
@@ -145,6 +145,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#121212",
     padding: 20,
+    paddingTop: 80
   },
   loadingContainer: {
     justifyContent: "center",
