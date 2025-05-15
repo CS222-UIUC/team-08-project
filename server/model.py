@@ -135,7 +135,8 @@ async def main_model(playlist_id):
         return {
             "song_url": song_url,
             "song_name": song_name,
-            "artist": artist
+            "artist": artist,
+            "song_id": track_id
         }
         
     except Exception as e:
